@@ -160,3 +160,5 @@ Si tienes problemas o preguntas:
 ---
 
 **¡Happy Trading! 📈**
+
+*Última actualización: $(date)*
