@@ -18,9 +18,11 @@ import {
   LogOut,
   User,
   Download,
+  Calculator,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { PerformanceChart } from "@/components/charts/performance-chart"
 
 interface Trade {
   id: string
@@ -60,6 +62,7 @@ export default function DashboardPage() {
     worst_trade: 0,
   })
   const [recentTrades, setRecentTrades] = useState<Trade[]>([])
+  const [performanceChartData, setPerformanceChartData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -82,6 +85,21 @@ export default function DashboardPage() {
           best_trade: 350.00,
           worst_trade: -120.00,
         })
+        // Mock performance chart data
+        const mockChartData = [
+          { date: "2024-01-01", pnl: 150, cumulative: 150, trades: 3 },
+          { date: "2024-01-02", pnl: -50, cumulative: 100, trades: 2 },
+          { date: "2024-01-03", pnl: 200, cumulative: 300, trades: 4 },
+          { date: "2024-01-04", pnl: 75, cumulative: 375, trades: 2 },
+          { date: "2024-01-05", pnl: -25, cumulative: 350, trades: 1 },
+          { date: "2024-01-06", pnl: 300, cumulative: 650, trades: 3 },
+          { date: "2024-01-07", pnl: 125, cumulative: 775, trades: 2 },
+          { date: "2024-01-08", pnl: -100, cumulative: 675, trades: 2 },
+          { date: "2024-01-09", pnl: 250, cumulative: 925, trades: 3 },
+          { date: "2024-01-10", pnl: 325, cumulative: 1250, trades: 4 },
+        ]
+        setPerformanceChartData(mockChartData)
+
         setRecentTrades([
           {
             id: "1",
@@ -261,6 +279,16 @@ export default function DashboardPage() {
               Strategies
             </Link>
           </Button>
+          <Button
+            variant="outline"
+            asChild
+            className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
+          >
+            <Link href="/options-analysis">
+              <Calculator className="h-4 w-4 mr-2" />
+              Options Analysis
+            </Link>
+          </Button>
         </div>
 
         {/* Performance Cards */}
@@ -319,6 +347,11 @@ export default function DashboardPage() {
           </Card>
         </div>
 
+        {/* Performance Chart */}
+        <div className="mb-8">
+          <PerformanceChart data={performanceChartData} />
+        </div>
+
         {/* Recent Trades */}
         <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
           <CardHeader>
@@ -355,10 +388,10 @@ export default function DashboardPage() {
                             }
                             className="text-xs"
                           >
-                            {trade.trade_type.toUpperCase()}
+                            {(trade.trade_type || "UNKNOWN").toUpperCase()}
                           </Badge>
                           <Badge variant="outline" className="text-xs border-slate-500 text-slate-400">
-                            {trade.market_type}
+                            {trade.market_type || "Unknown"}
                           </Badge>
                         </div>
                         <div className="text-sm text-slate-400">

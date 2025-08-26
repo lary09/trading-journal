@@ -30,6 +30,25 @@ export default function SignupPage() {
     console.log("[v0] Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL)
     console.log("[v0] Supabase Anon Key exists:", !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 
+    // Validaciones mejoradas
+    if (!fullName.trim()) {
+      setError("Full name is required")
+      setIsLoading(false)
+      return
+    }
+
+    if (!email.trim()) {
+      setError("Email is required")
+      setIsLoading(false)
+      return
+    }
+
+    if (!tradingExperience) {
+      setError("Please select your trading experience level")
+      setIsLoading(false)
+      return
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       setIsLoading(false)
@@ -38,6 +57,14 @@ export default function SignupPage() {
 
     if (password.length < 6) {
       setError("Password must be at least 6 characters long")
+      setIsLoading(false)
+      return
+    }
+
+    // Validación de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address")
       setIsLoading(false)
       return
     }
