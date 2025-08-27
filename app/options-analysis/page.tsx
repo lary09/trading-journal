@@ -264,7 +264,7 @@ export default function OptionsAnalysisPage() {
 
                   <Button 
                     onClick={handleCalculate}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     disabled={!formData.symbol || !formData.strikePrice || !formData.currentPrice || !formData.optionPrice}
                   >
                     <Calculator className="h-4 w-4 mr-2" />

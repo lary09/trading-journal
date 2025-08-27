@@ -456,7 +456,7 @@ export default function AnalyticsPage() {
               <PieChart className="h-12 w-12 text-slate-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-white mb-2">No Trading Data</h3>
               <p className="text-slate-400 mb-6">Start recording your trades to see detailed analytics and insights.</p>
-              <Button asChild className="bg-blue-600 hover:bg-blue-700">
+              <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                 <Link href="/trades/new">Record Your First Trade</Link>
               </Button>
             </CardContent>

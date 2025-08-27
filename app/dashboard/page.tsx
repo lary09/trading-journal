@@ -221,7 +221,7 @@ export default function DashboardPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
+                className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200"
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
@@ -229,7 +229,7 @@ export default function DashboardPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
+                className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200"
                 onClick={handleSignOut}
               >
                 <LogOut className="h-4 w-4 mr-2" />
@@ -243,7 +243,7 @@ export default function DashboardPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Quick Actions */}
         <div className="flex gap-4 mb-8">
-          <Button asChild className="bg-blue-600 hover:bg-blue-700">
+          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
             <Link href="/trades/new">
               <Plus className="h-4 w-4 mr-2" />
               New Trade
@@ -252,7 +252,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             asChild
-            className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
+            className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200 shadow-md hover:shadow-lg"
           >
             <Link href="/analytics">
               <BarChart3 className="h-4 w-4 mr-2" />
@@ -262,7 +262,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             asChild
-            className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
+            className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200 shadow-md hover:shadow-lg"
           >
             <Link href="/export">
               <Download className="h-4 w-4 mr-2" />
@@ -272,7 +272,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             asChild
-            className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
+            className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200 shadow-md hover:shadow-lg"
           >
             <Link href="/strategies">
               <Target className="h-4 w-4 mr-2" />
@@ -282,7 +282,7 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             asChild
-            className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
+            className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200 shadow-md hover:shadow-lg"
           >
             <Link href="/options-analysis">
               <Calculator className="h-4 w-4 mr-2" />
@@ -304,7 +304,7 @@ export default function DashboardPage() {
               >
                 ${performanceData.total_profit_loss.toFixed(2)}
               </div>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 Avg: ${performanceData.average_profit_loss.toFixed(2)} per trade
               </p>
             </CardContent>
@@ -318,7 +318,7 @@ export default function DashboardPage() {
             <CardContent>
               <div className="text-2xl font-bold text-white">{performanceData.win_rate_percentage.toFixed(1)}%</div>
               <Progress value={performanceData.win_rate_percentage} className="mt-2 h-2" />
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 {performanceData.winning_trades}W / {performanceData.losing_trades}L
               </p>
             </CardContent>
@@ -331,7 +331,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-400">${performanceData.best_trade.toFixed(2)}</div>
-              <p className="text-xs text-slate-500 mt-1">Highest single trade profit</p>
+              <p className="text-xs text-slate-400 mt-1">Highest single trade profit</p>
             </CardContent>
           </Card>
 
@@ -342,7 +342,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-white">{performanceData.total_trades}</div>
-              <p className="text-xs text-slate-500 mt-1">Trades executed</p>
+              <p className="text-xs text-slate-400 mt-1">Trades executed</p>
             </CardContent>
           </Card>
         </div>
@@ -364,7 +364,7 @@ export default function DashboardPage() {
                 variant="outline"
                 asChild
                 size="sm"
-                className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
+                className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200"
               >
                 <Link href="/trades">View All</Link>
               </Button>
@@ -427,7 +427,7 @@ export default function DashboardPage() {
             ) : (
               <div className="text-center py-8">
                 <div className="text-slate-400 mb-4">No trades recorded yet</div>
-                <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                   <Link href="/trades/new">
                     <Plus className="h-4 w-4 mr-2" />
                     Record Your First Trade

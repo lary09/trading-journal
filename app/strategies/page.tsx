@@ -106,7 +106,7 @@ export default function StrategiesPage() {
                 Strategy Management
               </Badge>
             </div>
-            <Button onClick={() => setShowNewForm(true)} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={() => setShowNewForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
               <Plus className="h-4 w-4 mr-2" />
               New Strategy
             </Button>
@@ -164,11 +164,11 @@ export default function StrategiesPage() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700">
+                    <Button variant="outline" size="sm" className="flex-1 border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200">
                       <BarChart3 className="h-4 w-4 mr-2" />
                       View Trades
                     </Button>
-                    <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700">
+                    <Button variant="outline" size="sm" className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200">
                       <Settings className="h-4 w-4" />
                     </Button>
                   </div>
@@ -248,14 +248,14 @@ export default function StrategiesPage() {
                 <div className="flex gap-2 pt-4">
                   <Button 
                     onClick={handleCreateStrategy}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                   >
                     Create Strategy
                   </Button>
                   <Button 
                     variant="outline"
                     onClick={() => setShowNewForm(false)}
-                    className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                    className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200"
                   >
                     Cancel
                   </Button>

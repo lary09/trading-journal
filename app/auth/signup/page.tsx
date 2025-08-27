@@ -223,7 +223,7 @@ export default function SignupPage() {
               {error && (
                 <div className="text-red-400 text-sm bg-red-900/20 p-3 rounded border border-red-800">{error}</div>
               )}
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading}>
                 {isLoading ? "Creating account..." : "Create Account"}
               </Button>
             </form>
