@@ -225,7 +225,7 @@ export default function NewTradePage() {
                   required
                   value={formData.symbol}
                   onChange={(e) => handleInputChange("symbol", e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                  className="bg-slate-700 border-slate-500 text-slate-200 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
@@ -234,14 +234,14 @@ export default function NewTradePage() {
                   Trade Type *
                 </Label>
                 <Select value={formData.trade_type} onValueChange={(value) => handleInputChange("trade_type", value)}>
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                    <SelectValue placeholder="Select trade type" />
+                  <SelectTrigger className="bg-slate-700 border-slate-500 text-slate-200 hover:border-slate-400 focus:border-blue-500 focus:ring-blue-500">
+                    <SelectValue placeholder="Select trade type" className="text-slate-200" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-700 border-slate-600">
-                    <SelectItem value="buy">Buy</SelectItem>
-                    <SelectItem value="sell">Sell</SelectItem>
-                    <SelectItem value="long">Long</SelectItem>
-                    <SelectItem value="short">Short</SelectItem>
+                  <SelectContent className="bg-slate-800 border-slate-600">
+                    <SelectItem value="buy" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Buy</SelectItem>
+                    <SelectItem value="sell" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Sell</SelectItem>
+                    <SelectItem value="long" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Long</SelectItem>
+                    <SelectItem value="short" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Short</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -251,17 +251,17 @@ export default function NewTradePage() {
                   Market Type *
                 </Label>
                 <Select value={formData.market_type} onValueChange={(value) => handleInputChange("market_type", value)}>
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                    <SelectValue placeholder="Select market" />
+                  <SelectTrigger className="bg-slate-700 border-slate-500 text-slate-200 hover:border-slate-400 focus:border-blue-500 focus:ring-blue-500">
+                    <SelectValue placeholder="Select market" className="text-slate-200" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-700 border-slate-600">
-                    <SelectItem value="forex">Forex</SelectItem>
-                    <SelectItem value="stocks">Stocks</SelectItem>
-                    <SelectItem value="crypto">Cryptocurrency</SelectItem>
-                    <SelectItem value="commodities">Commodities</SelectItem>
-                    <SelectItem value="indices">Indices</SelectItem>
-                    <SelectItem value="futures">Futures</SelectItem>
-                    <SelectItem value="options">Options</SelectItem>
+                  <SelectContent className="bg-slate-800 border-slate-600">
+                    <SelectItem value="forex" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Forex</SelectItem>
+                    <SelectItem value="stocks" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Stocks</SelectItem>
+                    <SelectItem value="crypto" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Cryptocurrency</SelectItem>
+                    <SelectItem value="commodities" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Commodities</SelectItem>
+                    <SelectItem value="indices" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Indices</SelectItem>
+                    <SelectItem value="futures" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Futures</SelectItem>
+                    <SelectItem value="options" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Options</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -271,12 +271,12 @@ export default function NewTradePage() {
                   Trading Strategy
                 </Label>
                 <Select value={formData.strategy_id} onValueChange={(value) => handleInputChange("strategy_id", value)}>
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                    <SelectValue placeholder="Select strategy (optional)" />
+                  <SelectTrigger className="bg-slate-700 border-slate-500 text-slate-200 hover:border-slate-400 focus:border-blue-500 focus:ring-blue-500">
+                    <SelectValue placeholder="Select strategy (optional)" className="text-slate-200" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-700 border-slate-600">
+                  <SelectContent className="bg-slate-800 border-slate-600">
                     {strategies.map((strategy) => (
-                      <SelectItem key={strategy.id} value={strategy.id}>
+                      <SelectItem key={strategy.id} value={strategy.id} className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">
                         {strategy.name}
                       </SelectItem>
                     ))}
@@ -305,7 +305,7 @@ export default function NewTradePage() {
                   required
                   value={formData.entry_price}
                   onChange={(e) => handleInputChange("entry_price", e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                  className="bg-slate-700 border-slate-500 text-slate-200 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
@@ -322,7 +322,7 @@ export default function NewTradePage() {
                     required={!isTradeOpen}
                     value={formData.exit_price}
                     onChange={(e) => handleInputChange("exit_price", e.target.value)}
-                    className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                    className="bg-slate-700 border-slate-500 text-slate-200 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               )}
@@ -339,7 +339,7 @@ export default function NewTradePage() {
                   required
                   value={formData.quantity}
                   onChange={(e) => handleInputChange("quantity", e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                  className="bg-slate-700 border-slate-500 text-slate-200 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
             </CardContent>
@@ -363,7 +363,7 @@ export default function NewTradePage() {
                   placeholder="1.2300"
                   value={formData.stop_loss}
                   onChange={(e) => handleInputChange("stop_loss", e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                  className="bg-slate-700 border-slate-500 text-slate-200 focus:border-blue-500 focus:ring-blue-500 placeholder:text-slate-400"
                 />
               </div>
 
@@ -378,7 +378,7 @@ export default function NewTradePage() {
                   placeholder="1.2400"
                   value={formData.take_profit}
                   onChange={(e) => handleInputChange("take_profit", e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                  className="bg-slate-700 border-slate-500 text-slate-200 focus:border-blue-500 focus:ring-blue-500 placeholder:text-slate-400"
                 />
               </div>
 
@@ -393,7 +393,7 @@ export default function NewTradePage() {
                   placeholder="100.00"
                   value={formData.risk_amount}
                   onChange={(e) => handleInputChange("risk_amount", e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                  className="bg-slate-700 border-slate-500 text-slate-200 focus:border-blue-500 focus:ring-blue-500 placeholder:text-slate-400"
                 />
               </div>
             </CardContent>
@@ -416,7 +416,7 @@ export default function NewTradePage() {
                   required
                   value={formData.entry_time}
                   onChange={(e) => handleInputChange("entry_time", e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white"
+                  className="bg-slate-700 border-slate-500 text-slate-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
@@ -430,7 +430,7 @@ export default function NewTradePage() {
                     type="datetime-local"
                     value={formData.exit_time}
                     onChange={(e) => handleInputChange("exit_time", e.target.value)}
-                    className="bg-slate-700 border-slate-600 text-white"
+                    className="bg-slate-700 border-slate-500 text-slate-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               )}
@@ -453,7 +453,7 @@ export default function NewTradePage() {
                   placeholder="Describe the technical setup, patterns, or signals that led to this trade..."
                   value={formData.trade_setup}
                   onChange={(e) => handleInputChange("trade_setup", e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 min-h-[100px]"
+                  className="bg-slate-700 border-slate-500 text-slate-200 focus:border-blue-500 focus:ring-blue-500 placeholder:text-slate-400 min-h-[100px]"
                 />
               </div>
 
@@ -468,7 +468,7 @@ export default function NewTradePage() {
                       placeholder="What happened with this trade? Did it go as expected?"
                       value={formData.trade_outcome}
                       onChange={(e) => handleInputChange("trade_outcome", e.target.value)}
-                      className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 min-h-[100px]"
+                      className="bg-slate-700 border-slate-500 text-slate-200 focus:border-blue-500 focus:ring-blue-500 placeholder:text-slate-400 min-h-[100px]"
                     />
                   </div>
 
@@ -481,7 +481,7 @@ export default function NewTradePage() {
                       placeholder="What did you learn from this trade? What would you do differently?"
                       value={formData.lessons_learned}
                       onChange={(e) => handleInputChange("lessons_learned", e.target.value)}
-                      className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 min-h-[100px]"
+                      className="bg-slate-700 border-slate-500 text-slate-200 focus:border-blue-500 focus:ring-blue-500 placeholder:text-slate-400 min-h-[100px]"
                     />
                   </div>
                 </>
@@ -506,12 +506,12 @@ export default function NewTradePage() {
                   value={formData.confidence_level}
                   onValueChange={(value) => handleInputChange("confidence_level", value)}
                 >
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                    <SelectValue placeholder="Rate your confidence" />
+                  <SelectTrigger className="bg-slate-700 border-slate-500 text-slate-200 hover:border-slate-400 focus:border-blue-500 focus:ring-blue-500">
+                    <SelectValue placeholder="Rate your confidence" className="text-slate-200" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-700 border-slate-600">
+                  <SelectContent className="bg-slate-800 border-slate-600">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
-                      <SelectItem key={level} value={level.toString()}>
+                      <SelectItem key={level} value={level.toString()} className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">
                         {level} - {level <= 3 ? "Low" : level <= 7 ? "Medium" : "High"}
                       </SelectItem>
                     ))}
@@ -527,16 +527,16 @@ export default function NewTradePage() {
                   value={formData.emotional_state}
                   onValueChange={(value) => handleInputChange("emotional_state", value)}
                 >
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                    <SelectValue placeholder="How did you feel?" />
+                  <SelectTrigger className="bg-slate-700 border-slate-500 text-slate-200 hover:border-slate-400 focus:border-blue-500 focus:ring-blue-500">
+                    <SelectValue placeholder="How did you feel?" className="text-slate-200" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-700 border-slate-600">
-                    <SelectItem value="calm">Calm</SelectItem>
-                    <SelectItem value="excited">Excited</SelectItem>
-                    <SelectItem value="fearful">Fearful</SelectItem>
-                    <SelectItem value="greedy">Greedy</SelectItem>
-                    <SelectItem value="confident">Confident</SelectItem>
-                    <SelectItem value="uncertain">Uncertain</SelectItem>
+                  <SelectContent className="bg-slate-800 border-slate-600">
+                    <SelectItem value="calm" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Calm</SelectItem>
+                    <SelectItem value="excited" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Excited</SelectItem>
+                    <SelectItem value="fearful" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Fearful</SelectItem>
+                    <SelectItem value="greedy" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Greedy</SelectItem>
+                    <SelectItem value="confident" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Confident</SelectItem>
+                    <SelectItem value="uncertain" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Uncertain</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -549,14 +549,14 @@ export default function NewTradePage() {
                   value={formData.market_condition}
                   onValueChange={(value) => handleInputChange("market_condition", value)}
                 >
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                    <SelectValue placeholder="Market environment" />
+                  <SelectTrigger className="bg-slate-700 border-slate-500 text-slate-200 hover:border-slate-400 focus:border-blue-500 focus:ring-blue-500">
+                    <SelectValue placeholder="Market environment" className="text-slate-200" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-700 border-slate-600">
-                    <SelectItem value="trending">Trending</SelectItem>
-                    <SelectItem value="ranging">Ranging</SelectItem>
-                    <SelectItem value="volatile">Volatile</SelectItem>
-                    <SelectItem value="calm">Calm</SelectItem>
+                  <SelectContent className="bg-slate-800 border-slate-600">
+                    <SelectItem value="trending" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Trending</SelectItem>
+                    <SelectItem value="ranging" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Ranging</SelectItem>
+                    <SelectItem value="volatile" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Volatile</SelectItem>
+                    <SelectItem value="calm" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Calm</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -566,14 +566,14 @@ export default function NewTradePage() {
                   News Impact
                 </Label>
                 <Select value={formData.news_impact} onValueChange={(value) => handleInputChange("news_impact", value)}>
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                    <SelectValue placeholder="News influence" />
+                  <SelectTrigger className="bg-slate-700 border-slate-500 text-slate-200 hover:border-slate-400 focus:border-blue-500 focus:ring-blue-500">
+                    <SelectValue placeholder="News influence" className="text-slate-200" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-700 border-slate-600">
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
+                  <SelectContent className="bg-slate-800 border-slate-600">
+                    <SelectItem value="none" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">None</SelectItem>
+                    <SelectItem value="low" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Low</SelectItem>
+                    <SelectItem value="medium" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">Medium</SelectItem>
+                    <SelectItem value="high" className="text-slate-200 hover:bg-slate-700 focus:bg-slate-700">High</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -596,7 +596,7 @@ export default function NewTradePage() {
                   placeholder="Any additional observations, screenshots references, or notes..."
                   value={formData.additional_notes}
                   onChange={(e) => handleInputChange("additional_notes", e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 min-h-[100px]"
+                  className="bg-slate-700 border-slate-500 text-slate-200 focus:border-blue-500 focus:ring-blue-500 placeholder:text-slate-400 min-h-[100px]"
                 />
               </div>
             </CardContent>
@@ -643,7 +643,7 @@ export default function NewTradePage() {
 
           {/* Submit Button */}
           <div className="flex gap-4">
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 flex-1" disabled={isLoading}>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading}>
               <Save className="h-4 w-4 mr-2" />
               {isLoading ? "Saving Trade..." : "Save Trade"}
             </Button>
@@ -651,7 +651,7 @@ export default function NewTradePage() {
               type="button"
               variant="outline"
               asChild
-              className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
+              className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200"
             >
               <Link href="/dashboard">Cancel</Link>
             </Button>
