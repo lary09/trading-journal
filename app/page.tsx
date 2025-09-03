@@ -6,19 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { TrendingUp, Shield, BarChart3, Target } from "lucide-react"
 
 export default async function HomePage() {
-  // Check if we're in test mode
-  const isTestMode = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') || 
-                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.includes('placeholder')
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!isTestMode) {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (user) {
-      redirect("/dashboard")
-    }
+  if (user) {
+    redirect("/dashboard")
   }
 
   return (

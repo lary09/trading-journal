@@ -23,26 +23,7 @@ export default function LoginPage() {
     setIsLoading(true)
     setError(null)
 
-    // Check if we're in test mode (using placeholder values)
-    const isTestMode = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') || 
-                      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.includes('placeholder')
 
-    if (isTestMode) {
-      console.log("[v0] Running in test mode - simulating login")
-      try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // Simulate successful login
-        console.log("[v0] Test login successful for:", email)
-        router.push("/dashboard")
-      } catch (error) {
-        setError("Test login failed")
-      } finally {
-        setIsLoading(false)
-      }
-      return
-    }
 
     try {
       const supabase = createClient()

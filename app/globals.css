@@ -64,6 +64,12 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+  --success: oklch(0.7 0.25 142);
+  --success-foreground: oklch(0.1 0.05 142);
+  --error: oklch(0.6 0.25 27);
+  --error-foreground: oklch(0.95 0.05 27);
+  --profit: oklch(0.7 0.25 142);
+  --loss: oklch(0.6 0.25 27);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -113,6 +119,12 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
+  --color-profit: var(--profit);
+  --color-loss: var(--loss);
 }
 
 @layer base {

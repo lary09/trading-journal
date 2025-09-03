@@ -50,7 +50,8 @@ interface PerformanceData {
 export default function DashboardPage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
+  const [trades, setTrades] = useState<Trade[]>([])
+  const [chartData, setChartData] = useState<{date: string, pnl: number, cumulative: number, trades: number}[]>([])
   const [performanceData, setPerformanceData] = useState<PerformanceData>({
     total_trades: 0,
     winning_trades: 0,
@@ -65,70 +66,25 @@ export default function DashboardPage() {
   const [performanceChartData, setPerformanceChartData] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
+  // Helper function to safely format numbers
+  const formatNumber = (value: number | null | undefined, decimals: number = 2): string => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return '0.' + '0'.repeat(decimals)
+    }
+    return value.toFixed(decimals)
+  }
+
+  const formatCurrency = (value: number | null | undefined): string => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return '$0.00'
+    }
+    return `$${value.toFixed(2)}`
+  }
+
   useEffect(() => {
     const loadDashboard = async () => {
-      // Check if we're in test mode
-      const isTestMode = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') || 
-                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.includes('placeholder')
-
-      if (isTestMode) {
-        console.log("[v0] Dashboard running in test mode - using mock data")
-        setUser({ id: "test-user", email: "test@example.com" })
-        setProfile({ full_name: "Test User", trading_experience: "intermediate" })
-        setPerformanceData({
-          total_trades: 25,
-          winning_trades: 18,
-          losing_trades: 7,
-          win_rate_percentage: 72,
-          total_profit_loss: 1250.50,
-          average_profit_loss: 50.02,
-          best_trade: 350.00,
-          worst_trade: -120.00,
-        })
-        // Mock performance chart data
-        const mockChartData = [
-          { date: "2024-01-01", pnl: 150, cumulative: 150, trades: 3 },
-          { date: "2024-01-02", pnl: -50, cumulative: 100, trades: 2 },
-          { date: "2024-01-03", pnl: 200, cumulative: 300, trades: 4 },
-          { date: "2024-01-04", pnl: 75, cumulative: 375, trades: 2 },
-          { date: "2024-01-05", pnl: -25, cumulative: 350, trades: 1 },
-          { date: "2024-01-06", pnl: 300, cumulative: 650, trades: 3 },
-          { date: "2024-01-07", pnl: 125, cumulative: 775, trades: 2 },
-          { date: "2024-01-08", pnl: -100, cumulative: 675, trades: 2 },
-          { date: "2024-01-09", pnl: 250, cumulative: 925, trades: 3 },
-          { date: "2024-01-10", pnl: 325, cumulative: 1250, trades: 4 },
-        ]
-        setPerformanceChartData(mockChartData)
-
-        setRecentTrades([
-          {
-            id: "1",
-            symbol: "AAPL",
-            trade_type: "long",
-            market_type: "stock",
-            entry_price: 150.25,
-            exit_price: 155.75,
-            profit_loss: 275.00,
-            entry_time: "2024-01-15T10:30:00Z",
-            status: "closed",
-          },
-          {
-            id: "2",
-            symbol: "TSLA",
-            trade_type: "short",
-            market_type: "stock",
-            entry_price: 240.00,
-            exit_price: 235.50,
-            profit_loss: 225.00,
-            entry_time: "2024-01-14T09:15:00Z",
-            status: "closed",
-          }
-        ])
-        setIsLoading(false)
-        return
-      }
-
       try {
+        setIsLoading(true)
         const supabase = createClient()
         const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
         
@@ -139,30 +95,27 @@ export default function DashboardPage() {
 
         setUser(authUser)
 
-        // Fetch user profile
-        const { data: userProfile } = await supabase.from("profiles").select("*").eq("id", authUser.id).single()
-        setProfile(userProfile)
+        // Fetch trades and calculate performance in one go
+        const { data: trades, error } = await supabase
+          .from('trades')
+          .select('*')
+          .eq('user_id', authUser.id)
+          .order('entry_time', { ascending: true })
 
-        // Fetch performance data
-        const { data: performance } = await supabase
-          .from("user_performance_summary")
-          .select("*")
-          .eq("user_id", authUser.id)
-          .single()
-
-        if (performance) {
-          setPerformanceData(performance)
+        if (error) {
+          console.error('Error fetching trades:', error)
+          return
         }
 
-        // Fetch recent trades
-        const { data: trades } = await supabase
-          .from("trades")
-          .select("*")
-          .eq("user_id", authUser.id)
-          .order("entry_time", { ascending: false })
-          .limit(5)
-
-        setRecentTrades(trades || [])
+        if (trades) {
+          const typedData = trades as Trade[]
+          setTrades(typedData)
+          calculatePerformance(typedData)
+          prepareChartData(typedData)
+          
+          // Set recent trades (last 5)
+          setRecentTrades([...typedData].reverse().slice(0, 5))
+        }
       } catch (error) {
         console.error("Error loading dashboard:", error)
         router.push("/auth/login")
@@ -174,16 +127,60 @@ export default function DashboardPage() {
     loadDashboard()
   }, [router])
 
-  const handleSignOut = async () => {
-    const isTestMode = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') || 
-                      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.includes('placeholder')
 
-    if (isTestMode) {
-      console.log("[v0] Test mode - simulating signout")
-      router.push("/")
-      return
-    }
+  const calculatePerformance = (trades: Trade[]) => {
+    const completedTrades = trades.filter(trade => 
+      trade.status === 'closed' && 
+      trade.profit_loss !== null && 
+      trade.profit_loss !== undefined
+    )
     
+    const totalTrades = completedTrades.length
+    const winningTrades = completedTrades.filter(trade => (trade.profit_loss ?? 0) > 0).length
+    const losingTrades = completedTrades.filter(trade => (trade.profit_loss ?? 0) < 0).length
+    const totalProfitLoss = completedTrades.reduce((acc, trade) => acc + (trade.profit_loss ?? 0), 0)
+    const averageProfitLoss = totalTrades > 0 ? totalProfitLoss / totalTrades : 0
+    const bestTrade = totalTrades > 0 ? Math.max(...completedTrades.map(trade => trade.profit_loss ?? 0)) : 0
+    const worstTrade = totalTrades > 0 ? Math.min(...completedTrades.map(trade => trade.profit_loss ?? 0)) : 0
+    const winRatePercentage = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0
+
+    setPerformanceData({
+      total_trades: totalTrades,
+      winning_trades: winningTrades,
+      losing_trades: losingTrades,
+      win_rate_percentage: parseFloat(winRatePercentage.toFixed(1)),
+      total_profit_loss: totalProfitLoss,
+      average_profit_loss: averageProfitLoss,
+      best_trade: bestTrade,
+      worst_trade: worstTrade,
+    })
+  }
+
+  const prepareChartData = (trades: Trade[]) => {
+    const completedTrades = trades.filter(trade => 
+      trade.status === 'closed' && 
+      trade.profit_loss !== null && 
+      trade.profit_loss !== undefined
+    )
+    
+    const chartData = completedTrades.map((trade, index) => {
+      const pnl = trade.profit_loss ?? 0
+      const cumulative = completedTrades
+        .slice(0, index + 1)
+        .reduce((acc, t) => acc + (t.profit_loss ?? 0), 0)
+
+      return {
+        date: new Date(trade.entry_time).toISOString().split('T')[0],
+        pnl,
+        cumulative,
+        trades: index + 1
+      }
+    })
+
+    setChartData(chartData)
+  }
+
+  const handleSignOut = async () => {
     try {
       const supabase = createClient()
       await supabase.auth.signOut()
@@ -196,7 +193,7 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="text-white">Loading dashboard...</div>
+        <div className="text-white text-xl">Loading dashboard...</div>
       </div>
     )
   }
@@ -216,7 +213,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-slate-300">
                 <User className="h-4 w-4" />
-                <span className="text-sm">{profile?.full_name || user.email}</span>
+                <span className="text-sm">{user.email}</span>
               </div>
               <Button
                 variant="outline"
@@ -289,6 +286,16 @@ export default function DashboardPage() {
               Options Analysis
             </Link>
           </Button>
+          <Button
+            variant="outline"
+            asChild
+            className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            <Link href="/calendar">
+              <Calendar className="h-4 w-4 mr-2" />
+              Calendar
+            </Link>
+          </Button>
         </div>
 
         {/* Performance Cards */}
@@ -300,12 +307,12 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div
-                className={`text-2xl font-bold ${performanceData.total_profit_loss >= 0 ? "text-green-400" : "text-red-400"}`}
+                className={`text-2xl font-bold ${(performanceData.total_profit_loss || 0) >= 0 ? "text-green-400" : "text-red-400"}`}
               >
-                ${performanceData.total_profit_loss.toFixed(2)}
+                {formatCurrency(performanceData.total_profit_loss)}
               </div>
               <p className="text-xs text-slate-400 mt-1">
-                Avg: ${performanceData.average_profit_loss.toFixed(2)} per trade
+                Avg: {formatCurrency(performanceData.average_profit_loss)} per trade
               </p>
             </CardContent>
           </Card>
@@ -316,8 +323,8 @@ export default function DashboardPage() {
               <Target className="h-4 w-4 text-slate-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{performanceData.win_rate_percentage.toFixed(1)}%</div>
-              <Progress value={performanceData.win_rate_percentage} className="mt-2 h-2" />
+              <div className="text-2xl font-bold text-white">{formatNumber(performanceData.win_rate_percentage, 1)}%</div>
+              <Progress value={performanceData.win_rate_percentage || 0} className="mt-2 h-2" />
               <p className="text-xs text-slate-400 mt-1">
                 {performanceData.winning_trades}W / {performanceData.losing_trades}L
               </p>
@@ -330,7 +337,7 @@ export default function DashboardPage() {
               <TrendingUp className="h-4 w-4 text-green-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-400">${performanceData.best_trade.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-green-400">{formatCurrency(performanceData.best_trade)}</div>
               <p className="text-xs text-slate-400 mt-1">Highest single trade profit</p>
             </CardContent>
           </Card>
@@ -395,7 +402,7 @@ export default function DashboardPage() {
                           </Badge>
                         </div>
                         <div className="text-sm text-slate-400">
-                          Entry: ${trade.entry_price.toFixed(4)} • {new Date(trade.entry_time).toLocaleDateString()}
+                          Entry: ${formatNumber(trade.entry_price, 4)} • {new Date(trade.entry_time).toLocaleDateString()}
                         </div>
                       </div>
                     </div>
@@ -410,14 +417,14 @@ export default function DashboardPage() {
                       </Badge>
                       {trade.profit_loss !== null && (
                         <div
-                          className={`flex items-center gap-1 ${trade.profit_loss >= 0 ? "text-green-400" : "text-red-400"}`}
+                          className={`flex items-center gap-1 ${(trade.profit_loss || 0) >= 0 ? "text-green-400" : "text-red-400"}`}
                         >
-                          {trade.profit_loss >= 0 ? (
+                          {(trade.profit_loss || 0) >= 0 ? (
                             <TrendingUp className="h-4 w-4" />
                           ) : (
                             <TrendingDown className="h-4 w-4" />
                           )}
-                          <span className="font-medium">${Math.abs(trade.profit_loss).toFixed(2)}</span>
+                          <span className="font-medium">{formatCurrency(Math.abs(trade.profit_loss || 0))}</span>
                         </div>
                       )}
                     </div>
@@ -449,17 +456,17 @@ export default function DashboardPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-400">Best Trade:</span>
-                    <span className="text-green-400">${performanceData.best_trade.toFixed(2)}</span>
+                    <span className="text-green-400">{formatCurrency(performanceData.best_trade)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-400">Worst Trade:</span>
-                    <span className="text-red-400">${Math.abs(performanceData.worst_trade).toFixed(2)}</span>
+                    <span className="text-red-400">{formatCurrency(Math.abs(performanceData.worst_trade || 0))}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-400">Risk/Reward:</span>
                     <span className="text-white">
-                      {performanceData.worst_trade !== 0
-                        ? (performanceData.best_trade / Math.abs(performanceData.worst_trade)).toFixed(2)
+                      {(performanceData.worst_trade || 0) !== 0
+                        ? formatNumber((performanceData.best_trade || 0) / Math.abs(performanceData.worst_trade || 1), 2)
                         : "N/A"}
                     </span>
                   </div>
@@ -497,19 +504,19 @@ export default function DashboardPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-400">Total P&L:</span>
-                    <span className={performanceData.total_profit_loss >= 0 ? "text-green-400" : "text-red-400"}>
-                      ${performanceData.total_profit_loss.toFixed(2)}
+                    <span className={(performanceData.total_profit_loss || 0) >= 0 ? "text-green-400" : "text-red-400"}>
+                      {formatCurrency(performanceData.total_profit_loss)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-400">Avg per Trade:</span>
-                    <span className={performanceData.average_profit_loss >= 0 ? "text-green-400" : "text-red-400"}>
-                      ${performanceData.average_profit_loss.toFixed(2)}
+                    <span className={(performanceData.average_profit_loss || 0) >= 0 ? "text-green-400" : "text-red-400"}>
+                      {formatCurrency(performanceData.average_profit_loss)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-400">Win Rate:</span>
-                    <span className="text-white">{performanceData.win_rate_percentage.toFixed(1)}%</span>
+                    <span className="text-white">{formatNumber(performanceData.win_rate_percentage, 1)}%</span>
                   </div>
                 </div>
               </CardContent>

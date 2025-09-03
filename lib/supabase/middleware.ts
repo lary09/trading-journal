@@ -6,14 +6,7 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
-  // Check if we're in test mode
-  const isTestMode = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') || 
-                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.includes('placeholder')
 
-  if (isTestMode) {
-    console.log("[v0] Middleware running in test mode - skipping auth checks")
-    return supabaseResponse
-  }
 
   // Check if environment variables are properly set
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {

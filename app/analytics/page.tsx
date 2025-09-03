@@ -50,112 +50,6 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     const loadAnalytics = async () => {
-      // Check if we're in test mode
-      const isTestMode = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') || 
-                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.includes('placeholder')
-
-      if (isTestMode) {
-        console.log("[v0] Analytics running in test mode - using mock data")
-        
-        // Mock trades data
-        const mockTrades: Trade[] = [
-          {
-            id: "1",
-            symbol: "AAPL",
-            trade_type: "long",
-            market_type: "stock",
-            profit_loss: 275.00,
-            profit_loss_percentage: 1.8,
-            entry_time: "2024-01-15T10:30:00Z",
-            exit_time: "2024-01-16T14:45:00Z",
-            status: "closed"
-          },
-          {
-            id: "2",
-            symbol: "TSLA",
-            trade_type: "short",
-            market_type: "stock",
-            profit_loss: 225.00,
-            profit_loss_percentage: 1.9,
-            entry_time: "2024-01-14T09:15:00Z",
-            exit_time: "2024-01-14T16:30:00Z",
-            status: "closed"
-          },
-          {
-            id: "3",
-            symbol: "NVDA",
-            trade_type: "long",
-            market_type: "stock",
-            profit_loss: -120.00,
-            profit_loss_percentage: -0.8,
-            entry_time: "2024-01-13T11:20:00Z",
-            exit_time: "2024-01-13T15:45:00Z",
-            status: "closed"
-          },
-          {
-            id: "4",
-            symbol: "MSFT",
-            trade_type: "long",
-            market_type: "stock",
-            profit_loss: 350.00,
-            profit_loss_percentage: 2.1,
-            entry_time: "2024-01-12T08:30:00Z",
-            exit_time: "2024-01-12T13:20:00Z",
-            status: "closed"
-          },
-          {
-            id: "5",
-            symbol: "GOOGL",
-            trade_type: "short",
-            market_type: "stock",
-            profit_loss: 180.00,
-            profit_loss_percentage: 1.2,
-            entry_time: "2024-01-11T14:15:00Z",
-            exit_time: "2024-01-11T17:30:00Z",
-            status: "closed"
-          }
-        ]
-
-        // Mock monthly performance
-        const mockMonthlyData: MonthlyData[] = [
-          {
-            month: "Jan 2024",
-            trades_count: 25,
-            winning_trades: 18,
-            win_rate: 72,
-            monthly_pnl: 1250.50
-          },
-          {
-            month: "Dec 2023",
-            trades_count: 32,
-            winning_trades: 22,
-            win_rate: 68.75,
-            monthly_pnl: 890.25
-          },
-          {
-            month: "Nov 2023",
-            trades_count: 28,
-            winning_trades: 19,
-            win_rate: 67.86,
-            monthly_pnl: 745.80
-          }
-        ]
-
-        // Mock performance data
-        const mockPerformance: PerformanceData = {
-          total_profit_loss: 1250.50,
-          average_profit_loss: 50.02,
-          best_trade: 350.00,
-          worst_trade: -120.00
-        }
-
-        setTradesData(mockTrades)
-        setMonthlyPerformance(mockMonthlyData)
-        setPerformance(mockPerformance)
-        setIsLoading(false)
-        return
-      }
-
       try {
         const supabase = createClient()
         const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -172,23 +66,10 @@ export default function AnalyticsPage() {
           .eq("user_id", user.id)
           .order("entry_time", { ascending: true })
 
-        // Fetch monthly performance data
-        const { data: monthlyData } = await supabase
-          .from("monthly_performance")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("month", { ascending: true })
-
-        // Fetch performance summary
-        const { data: performanceData } = await supabase
-          .from("user_performance_summary")
-          .select("*")
-          .eq("user_id", user.id)
-          .single()
-
+        // Process the data and set state
         setTradesData(trades || [])
-        setMonthlyPerformance(monthlyData || [])
-        setPerformance(performanceData)
+        setMonthlyPerformance([])
+        setPerformance(null)
       } catch (error) {
         console.error("Error loading analytics:", error)
         router.push("/auth/login")
