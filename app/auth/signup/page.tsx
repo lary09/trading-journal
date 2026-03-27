@@ -2,15 +2,14 @@
 
 import type React from "react"
 
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { signIn } from "next-auth/react"
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
@@ -20,7 +19,6 @@ export default function SignupPage() {
   const [tradingExperience, setTradingExperience] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,45 +70,10 @@ export default function SignupPage() {
 
 
     try {
-      const supabase = createClient()
-      console.log("[v0] Attempting signup for:", email)
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            trading_experience: tradingExperience,
-          }
-        }
-      })
-
-      console.log("[v0] Signup response:", { data, error })
-
-      if (error) {
-        console.log("[v0] Supabase signup error:", error)
-        throw error
-      }
-
-      if (data.user) {
-        console.log("[v0] User created successfully, redirecting...")
-        router.push("/auth/signup-success")
-      } else {
-        setError("Failed to create user account")
-      }
+      await signIn("github", { callbackUrl: "/dashboard" })
     } catch (error: unknown) {
-      console.log("[v0] Signup error:", error)
       if (error instanceof Error) {
-        // Handle specific Supabase errors
-        if (error.message.includes("already registered")) {
-          setError("An account with this email already exists. Please try logging in instead.")
-        } else if (error.message.includes("invalid email")) {
-          setError("Please enter a valid email address.")
-        } else if (error.message.includes("weak password")) {
-          setError("Password is too weak. Please choose a stronger password.")
-        } else {
-          setError(error.message)
-        }
+        setError(error.message)
       } else {
         setError("An unexpected error occurred. Please try again.")
       }

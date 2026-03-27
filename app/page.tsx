@@ -1,17 +1,14 @@
-import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TrendingUp, Shield, BarChart3, Target } from "lucide-react"
+import { getSession } from "@/lib/auth/session"
 
 export default async function HomePage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const session = await getSession()
 
-  if (user) {
+  if (session?.user) {
     redirect("/dashboard")
   }
 

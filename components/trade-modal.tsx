@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CalendarIcon, Plus, X } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
 interface TradeModalProps {
@@ -90,45 +89,36 @@ export function TradeModal({ isOpen, onClose, selectedDate }: TradeModalProps) {
     setIsSubmitting(true)
 
     try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        throw new Error("User not authenticated")
-      }
-
-      // Prepare trade data with selected date if available
-      const entryTime = selectedDate ? new Date(selectedDate) : new Date()
-      
-      // Prepare trade data with selected date if available
-      const tradeData = {
-        user_id: user.id,
+      const payload = {
         symbol: formData.symbol,
-        trade_type: formData.trade_type,
-        market_type: formData.market_type,
-        entry_price: formData.entry_price ? parseFloat(formData.entry_price) : null,
-        entry_date: formData.entry_date || new Date().toISOString().split('T')[0],
-        entry_time: formData.entry_date ? `${formData.entry_date}T${new Date().toTimeString().split(' ')[0]}` : new Date().toISOString(),
-        exit_price: formData.exit_price ? parseFloat(formData.exit_price) : null,
-        exit_time: formData.status === 'closed' && formData.exit_price ? new Date().toISOString() : null,
+        tradeType: formData.trade_type,
+        marketType: formData.market_type,
+        entryPrice: formData.entry_price ? parseFloat(formData.entry_price) : null,
+        entryTime: formData.entry_date ? `${formData.entry_date}T${new Date().toTimeString().split(' ')[0]}` : new Date().toISOString(),
+        exitPrice: formData.exit_price ? parseFloat(formData.exit_price) : null,
+        exitTime: formData.status === 'closed' && formData.exit_price ? new Date().toISOString() : null,
         quantity: formData.quantity ? parseFloat(formData.quantity) : null,
-        stop_loss: formData.stop_loss ? parseFloat(formData.stop_loss) : null,
-        take_profit: formData.take_profit ? parseFloat(formData.take_profit) : null,
-        profit_loss: formData.profit_loss ? parseFloat(formData.profit_loss) : null,
+        stopLoss: formData.stop_loss ? parseFloat(formData.stop_loss) : null,
+        takeProfit: formData.take_profit ? parseFloat(formData.take_profit) : null,
+        profitLoss: formData.profit_loss ? parseFloat(formData.profit_loss) : null,
         status: formData.status,
-        trade_setup: formData.trade_setup || null,
-        additional_notes: formData.additional_notes || null,
-        confidence_level: formData.confidence_level ? parseInt(formData.confidence_level) : null,
-        emotional_state: formData.emotional_state || null,
-        market_condition: formData.market_condition || null
+        tradeSetup: formData.trade_setup || null,
+        additionalNotes: formData.additional_notes || null,
+        confidenceLevel: formData.confidence_level ? parseInt(formData.confidence_level) : null,
+        emotionalState: formData.emotional_state || null,
+        marketCondition: formData.market_condition || null,
       }
 
-      const { error } = await supabase
-        .from('trades')
-        .insert([tradeData])
+      const res = await fetch("/api/trades", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
 
-      if (error) {
-        throw error
+      if (!res.ok) {
+        const json = await res.json().catch(() => null)
+        throw new Error(json?.error || "Failed to create trade")
       }
 
       toast({
@@ -137,7 +127,6 @@ export function TradeModal({ isOpen, onClose, selectedDate }: TradeModalProps) {
       })
 
       handleClose()
-      // Optionally refresh the calendar data here
       window.location.reload()
     } catch (error) {
       console.error('Error creating trade:', error)

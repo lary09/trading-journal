@@ -1,5 +1,6 @@
 "use client"
 
+import { AppShell } from "@/components/layout/app-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Target, TrendingUp, BarChart3, Settings, ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 interface Strategy {
   id: string
@@ -24,41 +25,7 @@ interface Strategy {
 }
 
 export default function StrategiesPage() {
-  const [strategies, setStrategies] = useState<Strategy[]>([
-    {
-      id: "1",
-      name: "Breakout Trading",
-      description: "Trade breakouts from key support/resistance levels with volume confirmation",
-      type: "Technical",
-      timeframe: "4H",
-      success_rate: 68,
-      total_trades: 45,
-      avg_profit: 2.5,
-      status: "active"
-    },
-    {
-      id: "2", 
-      name: "Mean Reversion",
-      description: "Trade reversals when price deviates significantly from moving averages",
-      type: "Technical",
-      timeframe: "1D",
-      success_rate: 72,
-      total_trades: 32,
-      avg_profit: 1.8,
-      status: "active"
-    },
-    {
-      id: "3",
-      name: "News Trading",
-      description: "Trade based on fundamental news and economic events",
-      type: "Fundamental",
-      timeframe: "1H",
-      success_rate: 55,
-      total_trades: 28,
-      avg_profit: 3.2,
-      status: "testing"
-    }
-  ])
+  const [strategies, setStrategies] = useState<Strategy[]>([])
 
   const [showNewForm, setShowNewForm] = useState(false)
   const [newStrategy, setNewStrategy] = useState({
@@ -69,51 +36,65 @@ export default function StrategiesPage() {
     status: "testing"
   })
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/strategies", { credentials: "include" })
+        if (res.ok) {
+          const json = await res.json()
+          setStrategies(json.data || [])
+        }
+      } catch (error) {
+        console.error("Error loading strategies", error)
+      }
+    }
+    load()
+  }, [])
+
   const handleCreateStrategy = () => {
     if (!newStrategy.name || !newStrategy.description || !newStrategy.type || !newStrategy.timeframe) {
       return
     }
 
-    const strategy: Strategy = {
-      id: Date.now().toString(),
-      name: newStrategy.name,
-      description: newStrategy.description,
-      type: newStrategy.type,
-      timeframe: newStrategy.timeframe,
-      success_rate: 0,
-      total_trades: 0,
-      avg_profit: 0,
-      status: newStrategy.status
-    }
-
-    setStrategies([...strategies, strategy])
-    setNewStrategy({ name: "", description: "", type: "", timeframe: "", status: "testing" })
-    setShowNewForm(false)
+    fetch("/api/strategies", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: newStrategy.name,
+        description: newStrategy.description,
+        riskLevel: newStrategy.type,
+        isActive: newStrategy.status === "active",
+      }),
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        if (json?.data) {
+          setStrategies([json.data, ...strategies])
+        }
+      })
+      .finally(() => {
+        setNewStrategy({ name: "", description: "", type: "", timeframe: "", status: "testing" })
+        setShowNewForm(false)
+      })
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <header className="border-b border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard" className="text-slate-400 hover:text-white">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-              <h1 className="text-2xl font-bold text-white">Trading Strategies</h1>
-              <Badge variant="outline" className="border-blue-600 text-blue-400">
-                Strategy Management
-              </Badge>
-            </div>
-            <Button onClick={() => setShowNewForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-              <Plus className="h-4 w-4 mr-2" />
-              New Strategy
-            </Button>
-          </div>
+    <AppShell
+      title="Strategies"
+      cta={
+        <div className="flex gap-3">
+          <Button variant="outline" size="sm" onClick={() => window.history.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <Button onClick={() => setShowNewForm(true)} className="bg-[--primary] text-[--primary-foreground]">
+            <Plus className="h-4 w-4 mr-2" />
+            New Strategy
+          </Button>
         </div>
-      </header>
-
+      }
+    >
       <div className="container mx-auto px-4 py-8">
         {/* Strategy Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -265,6 +246,6 @@ export default function StrategiesPage() {
           </div>
         )}
       </div>
-    </div>
+    </AppShell>
   )
 }

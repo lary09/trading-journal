@@ -1,349 +1,185 @@
 "use client"
 
-import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, TrendingUp, BarChart3, PieChart } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
+import { ArrowLeft, BarChart3, TrendingUp, PieChart } from "lucide-react"
+
+import { AppShell } from "@/components/layout/app-shell"
 import { ProfitLossChart } from "@/components/charts/profit-loss-chart"
 import { WinRateChart } from "@/components/charts/win-rate-chart"
-import { MarketDistributionChart } from "@/components/charts/market-distribution-chart"
-import { MonthlyPerformanceChart } from "@/components/charts/monthly-performance-chart"
-import { TradeTypeChart } from "@/components/charts/trade-type-chart"
-import { useEffect, useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
-interface Trade {
+type Trade = {
   id: string
   symbol: string
-  trade_type: string
-  market_type: string
-  profit_loss: number | null
-  profit_loss_percentage: number | null
-  entry_time: string
-  exit_time: string | null
+  tradeType: string
+  marketType: string
+  profitLoss: number | null
+  profitLossPct: number | null
+  entryTime: string
+  exitTime: string | null
   status: string
 }
 
-interface MonthlyData {
-  month: string
-  trades_count: number
-  winning_trades: number
-  win_rate: number
-  monthly_pnl: number
-}
-
-interface PerformanceData {
-  total_profit_loss: number
-  average_profit_loss: number
-  best_trade: number
-  worst_trade: number
-}
+type ChartPoint = { date: string; pnl: number; cumulative: number; trade: number }
 
 export default function AnalyticsPage() {
   const router = useRouter()
-  const [tradesData, setTradesData] = useState<Trade[]>([])
-  const [monthlyPerformance, setMonthlyPerformance] = useState<MonthlyData[]>([])
-  const [performance, setPerformance] = useState<PerformanceData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [trades, setTrades] = useState<Trade[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadAnalytics = async () => {
+    const load = async () => {
       try {
-        const supabase = createClient()
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-        
-        if (userError || !user) {
+        const res = await fetch("/api/trades", { credentials: "include" })
+        if (res.status === 401) {
           router.push("/auth/login")
           return
         }
-
-        // Fetch all trades for analytics
-        const { data: trades } = await supabase
-          .from("trades")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("entry_time", { ascending: true })
-
-        // Process the data and set state
-        setTradesData(trades || [])
-        setMonthlyPerformance([])
-        setPerformance(null)
-      } catch (error) {
-        console.error("Error loading analytics:", error)
+        const json = await res.json()
+        setTrades(json.data ?? [])
+      } catch (err) {
+        console.error(err)
         router.push("/auth/login")
       } finally {
-        setIsLoading(false)
+        setLoading(false)
       }
     }
-
-    loadAnalytics()
+    load()
   }, [router])
 
-  if (isLoading) {
+  // Demo fallback para que se vean las gráficas aunque no haya datos reales todavía
+  const demoClosed: Trade[] = [
+    { id: "1", symbol: "AAPL", tradeType: "long", marketType: "stocks", profitLoss: 120, profitLossPct: 0.04, entryTime: "2024-01-02", exitTime: "2024-01-10", status: "closed" },
+    { id: "2", symbol: "MSFT", tradeType: "long", marketType: "stocks", profitLoss: -60, profitLossPct: -0.02, entryTime: "2024-01-15", exitTime: "2024-01-20", status: "closed" },
+    { id: "3", symbol: "TSLA", tradeType: "long", marketType: "stocks", profitLoss: 200, profitLossPct: 0.07, entryTime: "2024-02-01", exitTime: "2024-02-12", status: "closed" },
+    { id: "4", symbol: "EURUSD", tradeType: "long", marketType: "fx", profitLoss: -40, profitLossPct: -0.01, entryTime: "2024-02-18", exitTime: "2024-02-25", status: "closed" },
+    { id: "5", symbol: "NVDA", tradeType: "long", marketType: "stocks", profitLoss: 260, profitLossPct: 0.08, entryTime: "2024-03-05", exitTime: "2024-03-20", status: "closed" },
+  ]
+  const closedTrades = useMemo(() => trades.filter((t) => t.status === "closed"), [trades])
+  const usingDemo = closedTrades.length === 0
+  const closed = usingDemo ? demoClosed : closedTrades
+  const totalTrades = trades.length
+  const winningTrades = closed.filter((t) => Number(t.profitLoss ?? 0) > 0).length
+  const losingTrades = closed.filter((t) => Number(t.profitLoss ?? 0) < 0).length
+  const winRate = closed.length ? (winningTrades / closed.length) * 100 : 0
+  const totalPnl = closed.reduce((acc, t) => acc + Number(t.profitLoss ?? 0), 0)
+  const avgPnl = closed.length ? totalPnl / closed.length : 0
+  const bestTrade = closed.length ? Math.max(...closed.map((t) => Number(t.profitLoss ?? 0))) : 0
+
+  const cumulativePnL: ChartPoint[] = useMemo(() => {
+    return closed.reduce<ChartPoint[]>((acc, trade, idx) => {
+      const prev = idx > 0 ? acc[idx - 1].cumulative : 0
+      const current = Number(trade.profitLoss ?? 0)
+      acc.push({
+        date: new Date(trade.exitTime ?? trade.entryTime).toLocaleDateString(),
+        pnl: current,
+        cumulative: prev + current,
+        trade: idx + 1,
+      })
+      return acc
+    }, [])
+  }, [closedTrades])
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="text-white">Loading analytics...</div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-200">
+        Loading analytics...
       </div>
     )
   }
 
-  // Calculate additional analytics
-  const closedTrades = tradesData.filter((trade) => trade.status === "closed")
-  const totalTrades = tradesData.length
-  const winningTrades = closedTrades.filter((trade) => trade.profit_loss && trade.profit_loss > 0).length
-  const losingTrades = closedTrades.filter((trade) => trade.profit_loss && trade.profit_loss < 0).length
-  const winRate = closedTrades.length > 0 ? (winningTrades / closedTrades.length) * 100 : 0
-
-  // Market distribution
-  const marketDistribution = tradesData.reduce(
-    (acc, trade) => {
-      acc[trade.market_type] = (acc[trade.market_type] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>,
-  )
-
-  // Trade type distribution
-  const tradeTypeDistribution = tradesData.reduce(
-    (acc, trade) => {
-      acc[trade.trade_type] = (acc[trade.trade_type] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>,
-  )
-
-  // Cumulative P&L data for chart
-  const cumulativePnL = closedTrades.reduce(
-    (acc, trade, index) => {
-      const prevTotal = index > 0 ? acc[index - 1].cumulative : 0
-      const currentPnL = trade.profit_loss || 0
-      acc.push({
-        date: new Date(trade.exit_time || trade.entry_time).toLocaleDateString(),
-        pnl: currentPnL,
-        cumulative: prevTotal + currentPnL,
-        trade: index + 1,
-      })
-      return acc
-    },
-    [] as Array<{ date: string; pnl: number; cumulative: number; trade: number }>,
-  )
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <header className="border-b border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-                className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
-              >
-                <Link href="/dashboard">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Dashboard
-                </Link>
-              </Button>
-              <h1 className="text-2xl font-bold text-white">Trading Analytics</h1>
-              <Badge variant="outline" className="border-purple-600 text-purple-400">
-                Performance Analysis
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-300">Total Trades</CardTitle>
-              <BarChart3 className="h-4 w-4 text-slate-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-white">{totalTrades}</div>
-              <p className="text-xs text-slate-500">
-                {closedTrades.length} closed, {totalTrades - closedTrades.length} open
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-300">Win Rate</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-white">{winRate.toFixed(1)}%</div>
-              <p className="text-xs text-slate-500">
-                {winningTrades}W / {losingTrades}L
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-300">Total P&L</CardTitle>
-              <TrendingUp className="h-4 w-4 text-slate-400" />
-            </CardHeader>
-            <CardContent>
-              <div
-                className={`text-2xl font-bold ${(performance?.total_profit_loss || 0) >= 0 ? "text-green-400" : "text-red-400"}`}
-              >
-                ${(performance?.total_profit_loss || 0).toFixed(2)}
-              </div>
-              <p className="text-xs text-slate-500">
-                Avg: ${performance?.average_profit_loss?.toFixed(2) || "0.00"} per trade
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-300">Best Trade</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-400">${performance?.best_trade?.toFixed(2) || "0.00"}</div>
-              <p className="text-xs text-slate-500">Highest single trade profit</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Cumulative P&L Chart */}
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Cumulative P&L</CardTitle>
-              <CardDescription className="text-slate-400">Your profit and loss over time</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ProfitLossChart data={cumulativePnL} />
-            </CardContent>
-          </Card>
-
-          {/* Win Rate Trend */}
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Win Rate Trend</CardTitle>
-              <CardDescription className="text-slate-400">Win rate percentage over time</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <WinRateChart data={cumulativePnL} />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Distribution Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Market Distribution */}
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Market Distribution</CardTitle>
-              <CardDescription className="text-slate-400">Trades by market type</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <MarketDistributionChart data={marketDistribution} />
-            </CardContent>
-          </Card>
-
-          {/* Trade Type Distribution */}
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Trade Types</CardTitle>
-              <CardDescription className="text-slate-400">Distribution of trade types</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <TradeTypeChart data={tradeTypeDistribution} />
-            </CardContent>
-          </Card>
-
-          {/* Risk Analysis */}
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Risk Analysis</CardTitle>
-              <CardDescription className="text-slate-400">Risk metrics overview</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between">
-                <span className="text-slate-400">Best Trade:</span>
-                <span className="text-green-400">${performance?.best_trade?.toFixed(2) || "0.00"}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Worst Trade:</span>
-                <span className="text-red-400">${Math.abs(performance?.worst_trade || 0).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Risk/Reward:</span>
-                <span className="text-white">
-                  {performance?.worst_trade && performance.worst_trade !== 0
-                    ? (performance.best_trade / Math.abs(performance.worst_trade)).toFixed(2)
-                    : "N/A"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Avg Win:</span>
-                <span className="text-green-400">
-                  $
-                  {closedTrades.length > 0
-                    ? (
-                        closedTrades
-                          .filter((t) => t.profit_loss && t.profit_loss > 0)
-                          .reduce((sum, t) => sum + (t.profit_loss || 0), 0) / winningTrades || 0
-                      ).toFixed(2)
-                    : "0.00"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Avg Loss:</span>
-                <span className="text-red-400">
-                  $
-                  {closedTrades.length > 0
-                    ? Math.abs(
-                        closedTrades
-                          .filter((t) => t.profit_loss && t.profit_loss < 0)
-                          .reduce((sum, t) => sum + (t.profit_loss || 0), 0) / losingTrades || 0,
-                      ).toFixed(2)
-                    : "0.00"}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Monthly Performance */}
-        {monthlyPerformance.length > 0 && (
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Monthly Performance</CardTitle>
-              <CardDescription className="text-slate-400">Performance breakdown by month</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <MonthlyPerformanceChart data={monthlyPerformance} />
-            </CardContent>
-          </Card>
-        )}
-
-        {/* No Data State */}
-        {totalTrades === 0 && (
-          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
-            <CardContent className="text-center py-12">
-              <PieChart className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">No Trading Data</h3>
-              <p className="text-slate-400 mb-6">Start recording your trades to see detailed analytics and insights.</p>
-              <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                <Link href="/trades/new">Record Your First Trade</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+    <AppShell
+      title="Analytics"
+      cta={
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Link>
+        </Button>
+      }
+    >
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <StatCard label="Total Trades" value={totalTrades} icon={<BarChart3 className="h-4 w-4" />} />
+        <StatCard label="Win Rate" value={`${winRate.toFixed(1)}%`} icon={<TrendingUp className="h-4 w-4" />} />
+        <StatCard
+          label="Total P&L"
+          value={`$${totalPnl.toFixed(2)}`}
+          tone={totalPnl >= 0 ? "positive" : "negative"}
+        />
+        <StatCard label="Best Trade" value={`$${bestTrade.toFixed(2)}`} />
       </div>
-    </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <Card className="bg-slate-900/60 border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-white">Cumulative P&L</CardTitle>
+            <CardDescription className="text-slate-400">
+              Performance over time {usingDemo && "(demo data: carga trades para ver los tuyos)"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>{cumulativePnL.length ? <ProfitLossChart data={cumulativePnL} /> : <EmptyChart />}</CardContent>
+        </Card>
+
+        <Card className="bg-slate-900/60 border-slate-800">
+          <CardHeader>
+            <CardTitle className="text-white">Win Rate</CardTitle>
+            <CardDescription className="text-slate-400">Closed trades only</CardDescription>
+          </CardHeader>
+          <CardContent>{cumulativePnL.length ? <WinRateChart data={cumulativePnL} /> : <EmptyChart />}</CardContent>
+        </Card>
+      </div>
+
+      {totalTrades === 0 && <EmptyState />}
+    </AppShell>
+  )
+}
+
+function StatCard({
+  label,
+  value,
+  icon,
+  tone = "neutral",
+}: {
+  label: string
+  value: string | number
+  icon?: React.ReactNode
+  tone?: "neutral" | "positive" | "negative"
+}) {
+  const color =
+    tone === "positive" ? "text-emerald-400" : tone === "negative" ? "text-rose-400" : "text-slate-300"
+  return (
+    <Card className="bg-slate-900/60 border-slate-800">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-slate-400">{label}</CardTitle>
+        {icon}
+      </CardHeader>
+      <CardContent>
+        <div className={`text-2xl font-semibold ${color}`}>{value}</div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function EmptyChart() {
+  return <div className="h-64 flex items-center justify-center text-slate-500 text-sm">No data yet</div>
+}
+
+function EmptyState() {
+  return (
+    <Card className="bg-slate-900/60 border-slate-800">
+      <CardContent className="py-12 text-center space-y-4">
+        <PieChart className="h-12 w-12 text-slate-500 mx-auto" />
+        <div className="text-lg font-medium text-white">No trading data</div>
+        <p className="text-slate-400">Start recording trades to unlock analytics.</p>
+        <Button asChild className="bg-blue-600 hover:bg-blue-500 text-white">
+          <Link href="/trades/new">Record your first trade</Link>
+        </Button>
+      </CardContent>
+    </Card>
   )
 }
