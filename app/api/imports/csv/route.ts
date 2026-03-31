@@ -28,80 +28,59 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => null)
-  const csv: string | undefined = body?.csv
-  const mapping: Mapping | undefined = body?.mapping
+  const rows: any[] = body?.trades
 
-  if (!csv || !mapping) {
-    return NextResponse.json({ error: "csv and mapping are required" }, { status: 400 })
-  }
-
-  const lines = csv
-    .split(/\r?\n/)
-    .map((l: string) => l.trim())
-    .filter((l: string) => l.length > 0)
-
-  if (lines.length < 2) {
-    return NextResponse.json({ error: "CSV needs header and at least one row" }, { status: 400 })
-  }
-
-  const header = lines[0].split(",").map((h) => h.trim())
-  const rows = lines.slice(1).map((line) => line.split(",").map((v) => v.trim()))
-
-  const col = (name: string) => {
-    const idx = header.findIndex((h) => h.toLowerCase() === name.toLowerCase())
-    return idx >= 0 ? idx : -1
-  }
-
-  const idx = {
-    symbol: col(mapping.symbol),
-    entryTime: col(mapping.entryTime),
-    tradeType: col(mapping.tradeType),
-    marketType: col(mapping.marketType),
-    quantity: col(mapping.quantity),
-    entryPrice: col(mapping.entryPrice),
-    exitPrice: mapping.exitPrice ? col(mapping.exitPrice) : -1,
-    status: mapping.status ? col(mapping.status) : -1,
-    profitLoss: mapping.profitLoss ? col(mapping.profitLoss) : -1,
-  }
-
-  if (Object.values(idx).some((v) => v === -1 && !Number.isNaN(v))) {
-    return NextResponse.json({ error: "Mapping columns not found in CSV header" }, { status: 400 })
+  if (!rows || !Array.isArray(rows) || rows.length === 0) {
+    return NextResponse.json({ error: "Trades data array is required and must not be empty" }, { status: 400 })
   }
 
   const parsed = []
-  for (const r of rows) {
-    const safe = (i: number) => (i >= 0 && i < r.length ? r[i] : "")
-    const entryPrice = Number.parseFloat(safe(idx.entryPrice))
-    const quantity = Number.parseFloat(safe(idx.quantity))
-    if (!safe(idx.symbol) || !Number.isFinite(entryPrice) || !Number.isFinite(quantity)) continue
+  
+  for (const row of rows) {
+    // Normalization heuristic: Extract values dynamically based on common CSV headers from brokers.
+    const symbolField = row.symbol || row.Symbol || row.ticker || row.Asset || ""
+    const entryTimeField = row.entry_time || row.Date || row.time || row["Entry Date"] || row.Date_Time
+    const rawPrice = row.entry_price || row.Price || row["Entry Price"]
+    const rawQty = row.quantity || row.Qty || row.Quantity || row.Shares
+    const rawPnl = row.profit_loss || row.PnL || row.pnl || row.Net_PL || row["Net P&L"]
+    
+    if (!symbolField || !entryTimeField) continue
+    
+    // Parse numeric fields safely
+    const entryPrice = parseFloat(String(rawPrice || "0").replace(/[^0-9.-]+/g, ""))
+    const quantity = parseFloat(String(rawQty || "1").replace(/[^0-9.-]+/g, ""))
+    const profitLoss = rawPnl ? parseFloat(String(rawPnl).replace(/[^0-9.-]+/g, "")) : null
+
+    if (!Number.isFinite(entryPrice) || !Number.isFinite(quantity)) continue
+
     parsed.push({
       userId,
-      symbol: safe(idx.symbol).toUpperCase(),
-      tradeType: safe(idx.tradeType) || "buy",
-      marketType: safe(idx.marketType) || "stocks",
-      entryPrice,
-      exitPrice: idx.exitPrice >= 0 ? Number.parseFloat(safe(idx.exitPrice)) || null : null,
-      quantity,
-      entryTime: new Date(safe(idx.entryTime) || Date.now()),
-      exitTime: null,
-      status: idx.status >= 0 ? safe(idx.status) || "open" : "open",
-      profitLoss: idx.profitLoss >= 0 ? Number.parseFloat(safe(idx.profitLoss)) || null : null,
+      symbol: String(symbolField).trim().toUpperCase(),
+      tradeType: String(row.trade_type || row.Type || row["Trade Type"] || "buy").toLowerCase().includes("sell") ? "short" : "long",
+      marketType: String(row.market_type || row.Market || "stocks").toLowerCase(),
+      entryPrice: entryPrice.toString(),
+      exitPrice: row.exit_price ? parseFloat(String(row.exit_price).replace(/[^0-9.-]+/g, "")).toString() : null,
+      quantity: quantity.toString(),
+      entryTime: new Date(entryTimeField),
+      exitTime: row.exit_time ? new Date(row.exit_time) : null,
+      status: row.status ? String(row.status).toLowerCase() : (profitLoss !== null ? "closed" : "open"),
+      profitLoss: profitLoss !== null ? profitLoss.toString() : null,
     })
   }
 
   const run = await db
     .insert(ingestionRuns)
-    .values({ userId, source: "csv", status: "processing", rowCount: parsed.length })
+    .values({ userId, source: "csv", status: "processing", rowCount: String(parsed.length) })
     .returning()
 
-  if (parsed.length) {
+  if (parsed.length > 0) {
     await db.insert(trades).values(parsed).onConflictDoNothing()
   }
 
   await db
     .update(ingestionRuns)
-    .set({ status: "completed", rowCount: parsed.length, updatedAt: new Date() })
+    .set({ status: "completed", rowCount: String(parsed.length), updatedAt: new Date() })
     .where(eq(ingestionRuns.id, run[0].id))
 
-  return NextResponse.json({ ok: true, inserted: parsed.length, runId: run[0].id, preview: parsed.slice(0, 5) })
+  return NextResponse.json({ ok: true, inserted: parsed.length, runId: run[0].id })
 }

@@ -71,6 +71,21 @@ export async function getClosedTradesWithPnL(userId: string) {
   return rows.map(normalizeTrade)
 }
 
+export async function getTradeById(id: string, userId: string) {
+  try {
+    const rows = await db
+      .select()
+      .from(trades)
+      .where(and(eq(trades.id, id), eq(trades.userId, userId)))
+      .limit(1)
+
+    return rows.length > 0 ? normalizeTrade(rows[0]) : null
+  } catch (error) {
+    console.error("Invalid database ID format or query error:", error)
+    return null
+  }
+}
+
 export interface CreateTradeInput {
   userId: string
   symbol: string

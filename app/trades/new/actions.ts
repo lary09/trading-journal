@@ -1,7 +1,10 @@
 "use server"
 
 import { auth } from "@/auth"
+import { db } from "@/db/client"
+import { riskRules, trades } from "@/db/schema"
 import { createTrade } from "@/lib/data/trades"
+import { and, eq, gte } from "drizzle-orm"
 
 export interface NewTradePayload {
   symbol: string
@@ -46,11 +49,26 @@ const calculateProfitLoss = (entryPrice: number, exitPrice: number, quantity: nu
   return (entryPrice - exitPrice) * quantity
 }
 
+const startOfUtcDay = () => {
+  const d = new Date()
+  d.setUTCHours(0, 0, 0, 0)
+  return d
+}
+
+const startOfUtcWeek = () => {
+  const d = startOfUtcDay()
+  const day = d.getUTCDay()
+  d.setUTCDate(d.getUTCDate() - day)
+  return d
+}
+
 export async function createTradeAction(payload: NewTradePayload) {
   const session = await auth()
   if (!session?.user?.id) {
     throw new Error("User not authenticated")
   }
+  
+  const userId = session.user.id
 
   const entryPrice = Number.parseFloat(payload.entryPrice)
   const quantity = Number.parseFloat(payload.quantity)
@@ -66,6 +84,35 @@ export async function createTradeAction(payload: NewTradePayload) {
     !payload.isTradeOpen && exitPrice !== null
       ? calculateProfitLoss(entryPrice, exitPrice, quantity, payload.tradeType)
       : null
+
+  // Risk Enforcement Block
+  const [rule] = await db.select().from(riskRules).where(eq(riskRules.userId, userId))
+  if (rule?.alertsEnabled) {
+    const dailyStart = startOfUtcDay()
+    const weeklyStart = startOfUtcWeek()
+    const rows = await db
+      .select({ profitLoss: trades.profitLoss, entryTime: trades.entryTime })
+      .from(trades)
+      .where(and(eq(trades.userId, userId), eq(trades.status, "closed"), gte(trades.entryTime, weeklyStart)))
+
+    const currentDailyPnl = rows
+      .filter((t) => new Date(t.entryTime).getTime() >= dailyStart.getTime())
+      .reduce((acc, t) => acc + Number(t.profitLoss ?? 0), 0)
+    
+    const currentWeeklyPnl = rows.reduce((acc, t) => acc + Number(t.profitLoss ?? 0), 0)
+
+    // Consider the PnL of the incoming trade if it's already closed
+    const incomingPnl = profitLoss ?? 0
+    const projectedDailyPnl = currentDailyPnl + incomingPnl
+    const projectedWeeklyPnl = currentWeeklyPnl + incomingPnl
+
+    if (rule.dailyLossLimit && projectedDailyPnl <= -Number(rule.dailyLossLimit)) {
+      throw new Error(`RIESGO: Límite Diario Alcanzado. P&L proyectado: $${projectedDailyPnl.toFixed(2)}. Límite: -$${rule.dailyLossLimit}. Operación bloqueada.`)
+    }
+    if (rule.weeklyLossLimit && projectedWeeklyPnl <= -Number(rule.weeklyLossLimit)) {
+      throw new Error(`RIESGO: Límite Semanal Alcanzado. P&L proyectado: $${projectedWeeklyPnl.toFixed(2)}. Límite: -$${rule.weeklyLossLimit}. Operación bloqueada.`)
+    }
+  }
 
   const profitLossPct =
     !payload.isTradeOpen && exitPrice !== null

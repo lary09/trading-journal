@@ -27,9 +27,9 @@ export default async function DashboardPage() {
   ])
 
   const demoTrades: NormalizedTrade[] = [
-    { id: "d1", userId: "demo", symbol: "AAPL", tradeType: "long", marketType: "stocks", entryPrice: 180, exitPrice: 190, quantity: 10, stopLoss: null, takeProfit: null, riskAmount: null, profitLoss: 100, profitLossPct: 0.055, commission: null, swap: null, entryTime: new Date("2024-03-01"), exitTime: new Date("2024-03-05"), status: "closed", tradeSetup: null, tradeOutcome: null, lessonsLearned: null, confidenceLevel: null, emotionalState: "confident", marketCondition: null, newsImpact: null, additionalNotes: null, chartScreenshotUrl: null, strategyId: null },
-    { id: "d2", userId: "demo", symbol: "TSLA", tradeType: "long", marketType: "stocks", entryPrice: 240, exitPrice: 220, quantity: 5, stopLoss: null, takeProfit: null, riskAmount: null, profitLoss: -100, profitLossPct: -0.083, commission: null, swap: null, entryTime: new Date("2024-03-10"), exitTime: new Date("2024-03-14"), status: "closed", tradeSetup: null, tradeOutcome: null, lessonsLearned: null, confidenceLevel: null, emotionalState: "anxious", marketCondition: null, newsImpact: null, additionalNotes: null, chartScreenshotUrl: null, strategyId: null },
-    { id: "d3", userId: "demo", symbol: "EURUSD", tradeType: "long", marketType: "fx", entryPrice: 1.08, exitPrice: 1.095, quantity: 10000, stopLoss: null, takeProfit: null, riskAmount: null, profitLoss: 150, profitLossPct: 0.013, commission: null, swap: null, entryTime: new Date("2024-03-20"), exitTime: new Date("2024-03-28"), status: "closed", tradeSetup: null, tradeOutcome: null, lessonsLearned: null, confidenceLevel: null, emotionalState: "calm", marketCondition: null, newsImpact: null, additionalNotes: null, chartScreenshotUrl: null, strategyId: null },
+    { id: "d1", userId: "demo", symbol: "AAPL", tradeType: "long", marketType: "stocks", entryPrice: "180", exitPrice: "190", quantity: "10", stopLoss: "175", takeProfit: "200", riskAmount: "50", profitLoss: "100", profitLossPct: "0.055", commission: "0", swap: "0", entryTime: new Date("2024-03-01"), exitTime: new Date("2024-03-05"), status: "closed", tradeSetup: null, tradeOutcome: null, lessonsLearned: null, confidenceLevel: null, emotionalState: "confident", marketCondition: null, newsImpact: null, additionalNotes: null, chartScreenshotUrl: null, strategyId: null, createdAt: new Date("2024-03-01"), updatedAt: new Date("2024-03-05") },
+    { id: "d2", userId: "demo", symbol: "TSLA", tradeType: "long", marketType: "stocks", entryPrice: "240", exitPrice: "220", quantity: "5", stopLoss: "210", takeProfit: "280", riskAmount: "150", profitLoss: "-100", profitLossPct: "-0.083", commission: "0", swap: "0", entryTime: new Date("2024-03-10"), exitTime: new Date("2024-03-14"), status: "closed", tradeSetup: null, tradeOutcome: null, lessonsLearned: null, confidenceLevel: null, emotionalState: "anxious", marketCondition: null, newsImpact: null, additionalNotes: null, chartScreenshotUrl: null, strategyId: null, createdAt: new Date("2024-03-10"), updatedAt: new Date("2024-03-14") },
+    { id: "d3", userId: "demo", symbol: "EURUSD", tradeType: "long", marketType: "fx", entryPrice: "1.08", exitPrice: "1.095", quantity: "10000", stopLoss: "1.07", takeProfit: "1.12", riskAmount: "100", profitLoss: "150", profitLossPct: "0.013", commission: "0", swap: "0", entryTime: new Date("2024-03-20"), exitTime: new Date("2024-03-28"), status: "closed", tradeSetup: null, tradeOutcome: null, lessonsLearned: null, confidenceLevel: null, emotionalState: "calm", marketCondition: null, newsImpact: null, additionalNotes: null, chartScreenshotUrl: null, strategyId: null, createdAt: new Date("2024-03-20"), updatedAt: new Date("2024-03-28") },
   ]
 
   const usingDemo = trades.length === 0
@@ -37,22 +37,22 @@ export default async function DashboardPage() {
 
   const totalTrades = tradeSet.length
   const closedTrades = tradeSet.filter((t) => t.status === "closed")
-  const winningTrades = closedTrades.filter((t) => (t.profitLoss ?? 0) > 0).length
-  const losingTrades = closedTrades.filter((t) => (t.profitLoss ?? 0) < 0).length
+  const winningTrades = closedTrades.filter((t) => Number(t.profitLoss ?? 0) > 0).length
+  const losingTrades = closedTrades.filter((t) => Number(t.profitLoss ?? 0) < 0).length
   const winRate = closedTrades.length ? (winningTrades / closedTrades.length) * 100 : 0
-  const totalPnl = closedTrades.reduce((acc, t) => acc + (t.profitLoss ?? 0), 0)
-  const bestTrade = closedTrades.length ? Math.max(...closedTrades.map((t) => t.profitLoss ?? 0)) : 0
-  const worstTrade = closedTrades.length ? Math.min(...closedTrades.map((t) => t.profitLoss ?? 0)) : 0
+  const totalPnl = closedTrades.reduce((acc, t) => acc + Number(t.profitLoss ?? 0), 0)
+  const bestTrade = closedTrades.length ? Math.max(...closedTrades.map((t) => Number(t.profitLoss ?? 0))) : 0
+  const worstTrade = closedTrades.length ? Math.min(...closedTrades.map((t) => Number(t.profitLoss ?? 0))) : 0
 
   const profitFactor = (() => {
-    const winSum = closedTrades.filter((t) => (t.profitLoss ?? 0) > 0).reduce((a, t) => a + (t.profitLoss ?? 0), 0)
-    const lossSum = closedTrades.filter((t) => (t.profitLoss ?? 0) < 0).reduce((a, t) => a + Math.abs(t.profitLoss ?? 0), 0)
-    return lossSum === 0 ? winSum > 0 ? Infinity : 0 : winSum / lossSum
+    const winSum = closedTrades.filter((t) => Number(t.profitLoss ?? 0) > 0).reduce((a, t) => a + Number(t.profitLoss ?? 0), 0)
+    const lossSum = closedTrades.filter((t) => Number(t.profitLoss ?? 0) < 0).reduce((a, t) => a + Math.abs(Number(t.profitLoss ?? 0)), 0)
+    return lossSum === 0 ? (winSum > 0 ? Infinity : 0) : winSum / lossSum
   })()
 
   const equity = closedTrades.reduce<number[]>((acc, t) => {
     const prev = acc.at(-1) ?? 0
-    acc.push(prev + (t.profitLoss ?? 0))
+    acc.push(prev + Number(t.profitLoss ?? 0))
     return acc
   }, [])
   const maxDrawdown = (() => {
@@ -152,44 +152,86 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="bg-slate-900/60 border-slate-800 mb-8">
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="bg-[#0f141e] border-slate-800 mb-8 overflow-hidden shadow-2xl">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800/50 pb-4">
           <div>
-            <CardTitle className="text-white">Recent Trades</CardTitle>
-            <CardDescription className="text-slate-400">Last 5 executions</CardDescription>
+            <CardTitle className="text-white text-lg font-medium">Recent Trades</CardTitle>
+            <CardDescription className="text-slate-400">Your last 5 executions</CardDescription>
           </div>
           <div className="flex gap-2">
             <Button asChild size="sm">
               <Link href="/trades/new">
                 <Plus className="h-4 w-4 mr-2" />
-                New trade
+                Add
               </Link>
             </Button>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/export">
-                <Download className="h-4 w-4 mr-2" />
-                Export
+              <Link href="/trades">
+                View All
               </Link>
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="divide-y divide-slate-800">
-          {recentTrades.map((trade: NormalizedTrade) => (
-            <div key={trade.id} className="py-3 flex items-center justify-between text-sm text-slate-200">
-              <div className="flex items-center gap-3">
-                <Badge variant="outline">{trade.symbol}</Badge>
-                <span>{trade.tradeType}</span>
-                <span className="text-slate-500">{new Date(trade.entryTime).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge variant={trade.profitLoss && trade.profitLoss > 0 ? "default" : "destructive"}>
-                  {formatCurrency(trade.profitLoss)}
-                </Badge>
-                <Badge variant="secondary">{trade.marketType}</Badge>
-              </div>
-            </div>
-          ))}
-          {recentTrades.length === 0 && <div className="py-3 text-slate-500">No trades yet.</div>}
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left font-mono">
+              <thead className="text-xs text-slate-400 uppercase bg-slate-900/40 border-b border-slate-800">
+                <tr>
+                  <th className="px-4 py-3 font-semibold tracking-wider">Status</th>
+                  <th className="px-4 py-3 font-semibold tracking-wider">Symbol</th>
+                  <th className="px-4 py-3 font-semibold tracking-wider text-right">Return $</th>
+                  <th className="px-4 py-3 font-semibold tracking-wider text-center">Side</th>
+                  <th className="px-4 py-3 font-semibold tracking-wider text-right">Date</th>
+                  <th className="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60">
+                {recentTrades.map((trade: NormalizedTrade) => {
+                  const pl = Number(trade.profitLoss ?? 0);
+                  const isWin = pl > 0;
+                  const isLoss = pl < 0;
+                  const isOpen = trade.status === "open";
+                  return (
+                    <tr key={trade.id} className="hover:bg-slate-800/30 transition-colors group cursor-pointer">
+                      <td className="px-4 py-2.5 whitespace-nowrap">
+                        {isOpen ? (
+                          <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-widest bg-amber-500/20 text-amber-500 uppercase border border-amber-500/30">OPEN</div>
+                        ) : isWin ? (
+                          <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-widest bg-emerald-500/20 text-emerald-400 uppercase border border-emerald-500/30">WIN</div>
+                        ) : (
+                          <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-widest bg-rose-500/20 text-rose-400 uppercase border border-rose-500/30">LOSS</div>
+                        )}
+                      </td>
+                      <td className="px-4 py-2.5 whitespace-nowrap font-bold text-sky-400 tracking-wide">
+                        {trade.symbol}
+                      </td>
+                      <td className={`px-4 py-2.5 text-right font-medium ${isWin ? "text-emerald-400" : isLoss ? "text-rose-400" : "text-amber-400"}`}>
+                        {isOpen ? "—" : formatCurrency(pl)}
+                      </td>
+                      <td className="px-4 py-2.5 text-center">
+                        <div className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase border ${trade.tradeType.toLowerCase() === 'long' ? 'border-emerald-500 text-emerald-400' : 'border-rose-500 text-rose-400'}`}>
+                          {trade.tradeType}
+                        </div>
+                      </td>
+                      <td className="px-4 py-2.5 text-right text-slate-400">
+                        {new Date(trade.entryTime).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}
+                      </td>
+                      <td className="px-4 py-2.5 text-right">
+                        <Button variant="ghost" size="sm" asChild className="h-6 text-xs text-slate-500 hover:text-white">
+                           <Link href={`/trades/${trade.id}`}>View</Link>
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
+                {recentTrades.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-6 text-center text-slate-500 font-sans">No recent trades.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
     </AppShell>
