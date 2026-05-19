@@ -1,9 +1,9 @@
 {
-  "buildCommand": "yarn build",
+  "buildCommand": "pnpm build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "yarn install",
-  "devCommand": "yarn dev",
+  "installCommand": "pnpm install",
+  "devCommand": "pnpm dev",
   "regions": ["iad1"],
   "functions": {
     "app/api/**/*.ts": {
