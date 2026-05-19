@@ -1,9 +1,9 @@
 {
-  "buildCommand": "pnpm build",
+  "buildCommand": "npx pnpm@10.19.0 build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "pnpm install",
-  "devCommand": "pnpm dev",
+  "installCommand": "npx pnpm@10.19.0 install --frozen-lockfile",
+  "devCommand": "npx pnpm@10.19.0 dev",
   "regions": ["iad1"],
   "functions": {
     "app/api/**/*.ts": {
