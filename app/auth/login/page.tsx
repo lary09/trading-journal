@@ -1,13 +1,14 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { type FormEvent, useEffect, useState } from "react"
 import { signIn } from "next-auth/react"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -50,19 +51,34 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
-      <div className="w-full max-w-md">
-        <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
+    <div className="terminal-shell flex min-h-screen items-center justify-center p-4 md:p-8">
+      <div className="grid w-full max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="terminal-panel hidden flex-col justify-between overflow-hidden p-10 lg:flex">
+          <div>
+            <div className="terminal-kicker mb-4">Trading Desk Access</div>
+            <h1 className="text-5xl font-semibold leading-tight tracking-tight text-white">
+              Review faster. Trade cleaner. Keep your edge visible.
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
+              Open your terminal workspace to inspect performance, journal decisions and manage risk from a single control surface.
+            </p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            <InfoTile label="Track" value="Execution quality" />
+            <InfoTile label="Audit" value="Setups and edge" />
+            <InfoTile label="Protect" value="Risk and process" />
+          </div>
+        </div>
+        <Card className="terminal-panel w-full py-8">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-white">Trading Journal</CardTitle>
-            <CardDescription className="text-slate-300">Sign in to access your trading dashboard</CardDescription>
+            <div className="terminal-kicker">Sign In</div>
+            <CardTitle className="text-3xl font-semibold text-white">Open your workspace</CardTitle>
+            <CardDescription>Sign in to access your trading dashboard</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-200">
-                  Email
-                </Label>
+                <Label htmlFor="email" className="text-slate-200/90">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -70,38 +86,43 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                  className="h-11 rounded-xl border-border/80 bg-black/20 text-white placeholder:text-muted-foreground"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-slate-200">
-                  Password
-                </Label>
+                <Label htmlFor="password" className="text-slate-200/90">Password</Label>
                 <Input
                   id="password"
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white"
+                  className="h-11 rounded-xl border-border/80 bg-black/20 text-white"
                 />
               </div>
-              {error && (
-                <div className="text-red-400 text-sm bg-red-900/20 p-3 rounded border border-red-800">{error}</div>
-              )}
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" disabled={isLoading}>
+              {error && <div className="rounded-xl border border-red-800 bg-red-900/20 p-3 text-sm text-red-400">{error}</div>}
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
-            <div className="mt-6 text-center text-sm text-slate-300">
+            <div className="mt-6 text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
-              <Link href="/auth/signup" className="text-blue-400 hover:text-blue-300 underline underline-offset-4">
+              <Link href="/auth/signup" className="text-primary hover:text-primary/80 underline underline-offset-4">
                 Sign up
               </Link>
             </div>
           </CardContent>
         </Card>
       </div>
+    </div>
+  )
+}
+
+function InfoTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="terminal-panel-muted p-4">
+      <div className="terminal-kicker mb-2">{label}</div>
+      <div className="text-sm text-white">{value}</div>
     </div>
   )
 }
