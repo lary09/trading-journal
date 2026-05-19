@@ -5,10 +5,11 @@ import { auth } from "@/auth"
 import { db } from "@/db/client"
 import { trades } from "@/db/schema"
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   const userId = session?.user?.id
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const { id } = await params
 
   const body = await req.json().catch(() => null)
   if (!body) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 })
@@ -48,18 +49,19 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const [updated] = await db
     .update(trades)
     .set(updates)
-    .where(eq(trades.id, params.id))
+    .where(eq(trades.id, id))
     .returning()
 
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 })
   return NextResponse.json({ data: updated })
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   const userId = session?.user?.id
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const { id } = await params
 
-  await db.delete(trades).where(eq(trades.id, params.id))
+  await db.delete(trades).where(eq(trades.id, id))
   return NextResponse.json({ ok: true })
 }

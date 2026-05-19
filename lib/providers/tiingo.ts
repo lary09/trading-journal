@@ -64,11 +64,11 @@ export async function ingestTiingoDaily(ticker: string, start?: string, end?: st
   const values = json.map((bar) => ({
     symbolId,
     tradingDay: bar.date.split("T")[0],
-    open: bar.open,
-    high: bar.high,
-    low: bar.low,
-    close: bar.close,
-    volume: bar.volume ?? null,
+    open: String(bar.open),
+    high: String(bar.high),
+    low: String(bar.low),
+    close: String(bar.close),
+    volume: bar.volume === null || bar.volume === undefined ? null : String(bar.volume),
     vwap: null,
   }))
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { and, asc, eq, gte, lte } from "drizzle-orm"
+import { and, asc, eq, gte, lte, type SQL } from "drizzle-orm"
 
 import { auth } from "@/auth"
 import { db } from "@/db/client"
@@ -33,13 +33,12 @@ export async function GET(req: Request) {
 
   const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 5000) : 1000
 
-  const clauses = [eq(trades.userId, userId)]
+  const clauses: SQL<unknown>[] = [eq(trades.userId, userId)]
   if (status) clauses.push(eq(trades.status, status))
   if (start) clauses.push(gte(trades.entryTime, new Date(start)))
   if (end) clauses.push(lte(trades.entryTime, new Date(end)))
 
-  const where =
-    clauses.length > 1 ? clauses.slice(1).reduce((acc, clause) => and(acc, clause), clauses[0]) : clauses[0]
+  const where = clauses.length === 1 ? clauses[0] : and(...clauses)!
 
   const rows = await db.select().from(trades).where(where).orderBy(asc(trades.entryTime)).limit(limit)
 

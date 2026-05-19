@@ -6,9 +6,22 @@ import { trades } from "@/db/schema"
 type TradeRow = typeof trades.$inferSelect
 type TradeInsert = typeof trades.$inferInsert
 
-export type NormalizedTrade = ReturnType<typeof normalizeTrade>
+export interface NormalizedTrade extends Omit<TradeRow, NumericTradeKey | "entryTime" | "exitTime"> {
+  entryPrice: number | null
+  exitPrice: number | null
+  quantity: number | null
+  stopLoss: number | null
+  takeProfit: number | null
+  riskAmount: number | null
+  profitLoss: number | null
+  profitLossPct: number | null
+  commission: number | null
+  swap: number | null
+  entryTime: Date
+  exitTime: Date | null
+}
 
-const numericKeys: Array<keyof TradeRow> = [
+const numericKeys = [
   "entryPrice",
   "exitPrice",
   "quantity",
@@ -19,10 +32,13 @@ const numericKeys: Array<keyof TradeRow> = [
   "profitLossPct",
   "commission",
   "swap",
-]
+] as const satisfies ReadonlyArray<keyof TradeRow>
 
-const toNumber = (value: string | number | null | undefined) => {
+type NumericTradeKey = (typeof numericKeys)[number]
+
+const toNumber = (value: string | number | Date | null | undefined) => {
   if (value === null || value === undefined) return null
+  if (value instanceof Date) return null
   const parsed = typeof value === "number" ? value : Number.parseFloat(value)
   return Number.isFinite(parsed) ? parsed : null
 }
@@ -30,14 +46,14 @@ const toNumber = (value: string | number | null | undefined) => {
 function normalizeTrade(row: TradeRow) {
   const numericValues = Object.fromEntries(
     numericKeys.map((key) => [key, toNumber(row[key])])
-  ) as Pick<TradeRow, (typeof numericKeys)[number]>
+  ) as Record<NumericTradeKey, number | null>
 
   return {
     ...row,
     ...numericValues,
     entryTime: row.entryTime instanceof Date ? row.entryTime : new Date(row.entryTime),
     exitTime: row.exitTime ? (row.exitTime instanceof Date ? row.exitTime : new Date(row.exitTime)) : null,
-  }
+  } satisfies NormalizedTrade
 }
 
 export async function getTradesForUser(userId: string) {
@@ -121,16 +137,16 @@ export async function createTrade(data: CreateTradeInput) {
     tradeType: data.tradeType,
     marketType: data.marketType,
     strategyId: data.strategyId ?? null,
-    entryPrice: data.entryPrice,
-    exitPrice: data.exitPrice ?? null,
-    quantity: data.quantity,
-    stopLoss: data.stopLoss ?? null,
-    takeProfit: data.takeProfit ?? null,
-    riskAmount: data.riskAmount ?? null,
-    profitLoss: data.profitLoss ?? null,
-    profitLossPct: data.profitLossPct ?? null,
-    commission: null,
-    swap: null,
+    entryPrice: String(data.entryPrice),
+    exitPrice: data.exitPrice === null || data.exitPrice === undefined ? null : String(data.exitPrice),
+    quantity: String(data.quantity),
+    stopLoss: data.stopLoss === null || data.stopLoss === undefined ? null : String(data.stopLoss),
+    takeProfit: data.takeProfit === null || data.takeProfit === undefined ? null : String(data.takeProfit),
+    riskAmount: data.riskAmount === null || data.riskAmount === undefined ? null : String(data.riskAmount),
+    profitLoss: data.profitLoss === null || data.profitLoss === undefined ? null : String(data.profitLoss),
+    profitLossPct: data.profitLossPct === null || data.profitLossPct === undefined ? null : String(data.profitLossPct),
+    commission: "0",
+    swap: "0",
     entryTime: data.entryTime,
     exitTime: data.exitTime ?? null,
     status: data.status,

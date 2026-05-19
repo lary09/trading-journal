@@ -40,7 +40,7 @@ export function MarketDistributionChart({ data }: MarketDistributionChartProps) 
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <ChartTooltip content={<ChartTooltipContent />} formatter={(value: number) => [value, "Trades"]} />
+          <ChartTooltip content={<ChartTooltipContent />} formatter={(value) => [Number(value ?? 0), "Trades"]} />
           <Legend
             verticalAlign="bottom"
             height={36}

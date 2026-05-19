@@ -4,6 +4,7 @@ import { pgTable, text, timestamp, uuid, integer, jsonb, boolean, numeric, date 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
+  passwordHash: text("password_hash"),
   name: text("name"),
   image: text("image"),
   emailVerified: timestamp("email_verified", { withTimezone: true }),

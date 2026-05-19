@@ -55,7 +55,7 @@ export function MonthlyPerformanceChart({ data }: MonthlyPerformanceChartProps) 
           />
           <ChartTooltip
             content={<ChartTooltipContent />}
-            formatter={(value: number) => [`$${value.toFixed(2)}`, "Monthly P&L"]}
+            formatter={(value) => [`$${Number(value ?? 0).toFixed(2)}`, "Monthly P&L"]}
           />
           <Bar dataKey="pnl" fill="var(--color-pnl)" radius={[4, 4, 0, 0]} />
         </BarChart>

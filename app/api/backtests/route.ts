@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { eq, and, gte, lte } from "drizzle-orm"
+import { eq, and, gte, lte, type SQL } from "drizzle-orm"
 
 import { auth } from "@/auth"
 import { db } from "@/db/client"
@@ -81,21 +81,21 @@ async function runSimpleBacktest(backtestId: string) {
 
   const params = bt.parameters as any
   const symbol = params?.symbol as string | undefined
-  const start = params?.start ? new Date(params.start) : undefined
-  const end = params?.end ? new Date(params.end) : undefined
+  const start = typeof params?.start === "string" ? params.start.slice(0, 10) : undefined
+  const end = typeof params?.end === "string" ? params.end.slice(0, 10) : undefined
   if (!symbol) return bt
 
   const where = [
     eq(symbols.ticker, symbol),
     start ? gte(bars1d.tradingDay, start) : undefined,
     end ? lte(bars1d.tradingDay, end) : undefined,
-  ].filter(Boolean) as any[]
+  ].filter(Boolean) as SQL<unknown>[]
 
   const bars = await db
     .select({ close: bars1d.close })
     .from(bars1d)
     .innerJoin(symbols, eq(bars1d.symbolId, symbols.id))
-    .where(where.length === 1 ? where[0] : and(...where))
+    .where(where.length === 1 ? where[0] : and(...where)!)
     .orderBy(bars1d.tradingDay)
 
   if (!bars.length) return bt

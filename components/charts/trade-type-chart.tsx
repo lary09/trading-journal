@@ -31,7 +31,7 @@ export function TradeTypeChart({ data }: TradeTypeChartProps) {
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
           <XAxis dataKey="type" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
           <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-          <ChartTooltip content={<ChartTooltipContent />} formatter={(value: number) => [value, "Trades"]} />
+          <ChartTooltip content={<ChartTooltipContent />} formatter={(value) => [Number(value ?? 0), "Trades"]} />
           <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>

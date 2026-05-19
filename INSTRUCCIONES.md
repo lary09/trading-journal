@@ -1,17 +1,16 @@
 ✅ Modo test ELIMINADO exitosamente
 
-�� Para usar la aplicación con Supabase real:
+Para usar la aplicación con Neon y Auth.js:
 
 1️⃣ Crea un archivo .env.local en la raíz del proyecto:
-   NEXT_PUBLIC_SUPABASE_URL=tu_url_de_proyecto_supabase
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima_supabase
+   DATABASE_URL=postgresql://...
+   AUTH_SECRET=tu_auth_secret
 
-2️⃣ Obtén estos valores desde tu proyecto Supabase:
-   • Ve a Settings > API
-   • Copia Project URL
-   • Copia anon public key
+2️⃣ Obtén estos valores desde Neon/Auth.js:
+   • Copia tu cadena `DATABASE_URL`
+   • Genera un secret largo para `AUTH_SECRET`
 
-3️⃣ Ejecuta las migraciones SQL que están en scripts/
+3️⃣ Ejecuta las migraciones SQL que están en `scripts/`
 
 4️⃣ Ejecuta: npm run dev
 

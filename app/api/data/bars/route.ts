@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte } from "drizzle-orm"
+import { and, desc, eq, gte, lte, type SQL } from "drizzle-orm"
 import { NextResponse } from "next/server"
 
 import { db } from "@/db/client"
@@ -17,11 +17,11 @@ export async function GET(req: Request) {
 
   const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 1000) : 200
 
-  const clauses = [eq(symbols.ticker, ticker)]
-  if (start) clauses.push(gte(bars1d.tradingDay, new Date(start)))
-  if (end) clauses.push(lte(bars1d.tradingDay, new Date(end)))
+  const clauses: SQL<unknown>[] = [eq(symbols.ticker, ticker)]
+  if (start) clauses.push(gte(bars1d.tradingDay, start.slice(0, 10)))
+  if (end) clauses.push(lte(bars1d.tradingDay, end.slice(0, 10)))
 
-  const where = clauses.slice(1).reduce((acc, clause) => and(acc, clause), clauses[0])
+  const where = clauses.length === 1 ? clauses[0] : and(...clauses)!
 
   const rows = await db
     .select({

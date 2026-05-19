@@ -4,6 +4,11 @@ import type { Adapter } from "next-auth/adapters"
 import { db } from "@/db/client"
 import { accounts, sessions, users, verificationTokens, authenticators } from "@/db/schema"
 
+const toNullableString = (value: unknown) => {
+  if (value === null || value === undefined) return null
+  return typeof value === "string" ? value : JSON.stringify(value)
+}
+
 export function customDrizzleAdapter(): Adapter {
   return {
     createUser: async (data) => {
@@ -49,13 +54,13 @@ export function customDrizzleAdapter(): Adapter {
         type: acc.type,
         provider: acc.provider,
         providerAccountId: acc.providerAccountId,
-        refreshToken: acc.refresh_token ?? null,
-        accessToken: acc.access_token ?? null,
+        refreshToken: toNullableString(acc.refresh_token),
+        accessToken: toNullableString(acc.access_token),
         expiresAt: acc.expires_at ?? null,
-        tokenType: acc.token_type ?? null,
-        scope: acc.scope ?? null,
-        idToken: acc.id_token ?? null,
-        sessionState: acc.session_state ?? null,
+        tokenType: toNullableString(acc.token_type),
+        scope: toNullableString(acc.scope),
+        idToken: toNullableString(acc.id_token),
+        sessionState: toNullableString(acc.session_state),
       })
       return acc
     },
@@ -124,7 +129,13 @@ export function customDrizzleAdapter(): Adapter {
       return await db.select().from(authenticators).where(eq(authenticators.userId, userId))
     },
     updateAuthenticatorCounter: async (credentialID, counter) => {
-      await db.update(authenticators).set({ counter }).where(eq(authenticators.credentialID, credentialID))
+      const [row] = await db
+        .update(authenticators)
+        .set({ counter })
+        .where(eq(authenticators.credentialID, credentialID))
+        .returning()
+
+      return row
     },
   }
 }

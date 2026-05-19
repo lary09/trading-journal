@@ -1,6 +1,7 @@
 -- Run this once in Neon to align Auth.js tables with our custom adapter.
 
 alter table if exists users add column if not exists email_verified timestamptz;
+alter table if exists users add column if not exists password_hash text;
 
 create table if not exists accounts (
   user_id text not null references users(id) on delete cascade,

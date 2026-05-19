@@ -1,21 +1,21 @@
 # 📊 Trading Journal
 
-Una aplicación web moderna para el seguimiento y análisis de operaciones de trading, construida con Next.js 15, Supabase y Tailwind CSS.
+Una aplicación web moderna para el seguimiento y análisis de operaciones de trading, construida con Next.js 15, Neon Postgres, Auth.js y Tailwind CSS.
 
 ## ✨ Características
 
 - **📈 Dashboard Interactivo** - Métricas en tiempo real y resumen de operaciones
 - **🎯 Gestión de Estrategias** - Crear, editar y seguir estrategias de trading
 - **📊 Analytics Avanzados** - Gráficos y análisis de rendimiento
-- **🔐 Autenticación Segura** - Sistema de login/signup con Supabase
+- **🔐 Autenticación Segura** - Sistema de login/signup con email/password y Auth.js
 - **📱 Diseño Responsive** - Funciona perfectamente en móvil y desktop
-- **⚡ Base de Datos en Tiempo Real** - PostgreSQL con Supabase
+- **⚡ Base de Datos** - PostgreSQL en Neon
 
 ## 🚀 Tecnologías
 
 - **Frontend:** Next.js 15, React 18, TypeScript
 - **Styling:** Tailwind CSS, Radix UI
-- **Backend:** Supabase (PostgreSQL, Auth, Real-time)
+- **Backend:** Neon Postgres + Auth.js + Drizzle ORM
 - **Gráficos:** Recharts
 - **Deployment:** Vercel
 
@@ -25,7 +25,7 @@ Una aplicación web moderna para el seguimiento y análisis de operaciones de tr
 
 - Node.js 18+ 
 - Yarn o npm
-- Cuenta de Supabase
+- Base de datos PostgreSQL en Neon
 
 ### Pasos
 
@@ -45,19 +45,23 @@ yarn install
 cp .env.example .env.local
 ```
 
-Edita `.env.local` con tus credenciales de Supabase:
+Edita `.env.local` con tus credenciales:
 ```env
-NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
+DATABASE_URL=postgresql://...
+AUTH_SECRET=tu_auth_secret
+GITHUB_ID=opcional
+GITHUB_SECRET=opcional
 ```
 
 4. **Configurar base de datos**
-Ejecuta los scripts SQL en tu proyecto de Supabase:
+Ejecuta los scripts SQL en tu base de datos:
+- `scripts/init-auth.sql`
 - `scripts/001_create_profiles.sql`
 - `scripts/002_create_strategies.sql`
 - `scripts/003_create_trades.sql`
 - `scripts/004_create_profile_trigger.sql`
 - `scripts/005_create_performance_views.sql`
+- `scripts/006_add_user_password_hash.sql`
 
 5. **Ejecutar en desarrollo**
 ```bash
@@ -90,8 +94,8 @@ La aplicación estará disponible en `http://localhost:3000`
 ### Variables de Entorno Requeridas
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key
+DATABASE_URL=postgresql://...
+AUTH_SECRET=tu_auth_secret
 ```
 
 ## 📱 Uso
@@ -124,7 +128,7 @@ yarn lint         # Linting
 │   └── trades/         # Gestión de trades
 ├── components/         # Componentes reutilizables
 ├── lib/               # Utilidades y configuraciones
-├── scripts/           # Scripts SQL para Supabase
+├── scripts/           # Scripts SQL para PostgreSQL
 └── public/            # Archivos estáticos
 ```
 
@@ -144,7 +148,7 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 Si tienes problemas o preguntas:
 
-1. Revisa la [documentación de Supabase](https://supabase.com/docs)
+1. Revisa la configuración de Neon, Auth.js y Drizzle
 2. Abre un issue en GitHub
 3. Contacta al equipo de desarrollo
 

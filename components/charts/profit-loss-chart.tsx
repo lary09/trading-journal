@@ -47,7 +47,7 @@ export function ProfitLossChart({ data }: ProfitLossChartProps) {
           />
           <ChartTooltip
             content={<ChartTooltipContent />}
-            formatter={(value: number) => [`$${value.toFixed(2)}`, "Cumulative P&L"]}
+            formatter={(value) => [`$${Number(value ?? 0).toFixed(2)}`, "Cumulative P&L"]}
             labelFormatter={(label) => `Trade #${label}`}
           />
           <Line

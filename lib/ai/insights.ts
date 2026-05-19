@@ -1,4 +1,9 @@
-import { ChatCompletionCreateParams } from "openai/resources/chat/completions"
+type ChatCompletionCreateParams = {
+  model: string
+  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>
+  temperature?: number
+  max_tokens?: number
+}
 
 type TradeLite = {
   symbol: string

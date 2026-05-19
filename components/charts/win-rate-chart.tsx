@@ -60,7 +60,7 @@ export function WinRateChart({ data }: WinRateChartProps) {
           />
           <ChartTooltip
             content={<ChartTooltipContent />}
-            formatter={(value: number) => [`${value.toFixed(1)}%`, "Win Rate"]}
+            formatter={(value) => [`${Number(value ?? 0).toFixed(1)}%`, "Win Rate"]}
             labelFormatter={(label) => `Trade #${label}`}
           />
           <Line

@@ -1,17 +1,18 @@
 "use client"
 
-import type React from "react"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
-import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { type FormEvent, useState } from "react"
 import { signIn } from "next-auth/react"
 
 export default function SignupPage() {
+  const router = useRouter()
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -20,23 +21,13 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
 
-    console.log("[v0] Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL)
-    console.log("[v0] Supabase Anon Key exists:", !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-
-    // Validaciones mejoradas
     if (!fullName.trim()) {
       setError("Full name is required")
-      setIsLoading(false)
-      return
-    }
-
-    if (!email.trim()) {
-      setError("Email is required")
       setIsLoading(false)
       return
     }
@@ -47,36 +38,58 @@ export default function SignupPage() {
       return
     }
 
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long")
+      setIsLoading(false)
+      return
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       setIsLoading(false)
       return
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long")
-      setIsLoading(false)
-      return
-    }
-
-    // Validación de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address")
-      setIsLoading(false)
-      return
-    }
-
-
-
     try {
-      await signIn("github", { callbackUrl: "/dashboard" })
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message)
-      } else {
-        setError("An unexpected error occurred. Please try again.")
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          fullName,
+          tradingExperience,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || "Unable to create account")
+        setIsLoading(false)
+        return
       }
+
+      const result = await signIn("credentials", {
+        email,
+        password,
+        callbackUrl: "/dashboard",
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError("Account created, but automatic sign in failed. Please log in.")
+        setIsLoading(false)
+        router.push("/auth/login")
+        return
+      }
+
+      router.push(result?.url || "/dashboard")
+      router.refresh()
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "An unexpected error occurred. Please try again.")
     } finally {
       setIsLoading(false)
     }

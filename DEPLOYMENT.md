@@ -22,8 +22,9 @@
    ```
 
 4. **Configurar variables de entorno en Vercel Dashboard:**
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `DATABASE_URL`
+   - `AUTH_SECRET`
+   - `GITHUB_ID` y `GITHUB_SECRET` si usarás OAuth
 
 #### Configuración automática con GitHub:
 1. Conecta tu repositorio de GitHub a Vercel
@@ -69,12 +70,12 @@
    railway up
    ```
 
-## Configuración de Supabase
+## Configuración de Neon y Auth
 
-### 1. **Crear proyecto en Supabase:**
-1. Ve a [supabase.com](https://supabase.com)
+### 1. **Crear base de datos en Neon:**
+1. Ve a [neon.tech](https://neon.tech)
 2. Crea un nuevo proyecto
-3. Guarda la URL y la anon key
+3. Guarda tu `DATABASE_URL`
 
 ### 2. **Ejecutar scripts de base de datos:**
 Los scripts están en la carpeta `scripts/`:
@@ -84,19 +85,18 @@ Los scripts están en la carpeta `scripts/`:
 - `004_create_profile_trigger.sql`
 - `005_create_performance_views.sql`
 
-Ejecuta estos scripts en el SQL Editor de Supabase.
+Ejecuta estos scripts en tu base de datos PostgreSQL.
 
 ### 3. **Configurar autenticación:**
-1. Ve a Authentication > Settings en Supabase
-2. Configura los dominios permitidos
-3. Configura los providers de autenticación (email, Google, etc.)
+1. Define `AUTH_SECRET`
+2. Si usarás GitHub OAuth, configura `GITHUB_ID` y `GITHUB_SECRET`
+3. Si usarás email/password, ejecuta también `scripts/init-auth.sql` o `scripts/006_add_user_password_hash.sql`
 
 ## Variables de Entorno Requeridas
 
 ```bash
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+DATABASE_URL=postgresql://...
+AUTH_SECRET=your_auth_secret
 ```
 
 ## Comandos de Desarrollo
@@ -119,13 +119,12 @@ yarn start
 
 - `app/` - Páginas y rutas de Next.js 13+ (App Router)
 - `components/` - Componentes reutilizables
-- `lib/supabase/` - Configuración de Supabase
 - `scripts/` - Scripts SQL para la base de datos
 - `public/` - Archivos estáticos
 
 ## Características del Sistema
 
-- ✅ Autenticación con Supabase
+- ✅ Autenticación con Auth.js
 - ✅ Dashboard con analytics
 - ✅ Gestión de trades
 - ✅ Gráficos de rendimiento
@@ -149,14 +148,14 @@ rm -rf node_modules
 yarn install
 ```
 
-### Error de Supabase:
+### Error de base de datos o auth:
 1. Verifica las variables de entorno
-2. Asegúrate de que el proyecto de Supabase esté activo
+2. Asegúrate de que tu base de Neon esté activa
 3. Verifica que los scripts SQL se hayan ejecutado
 
 ## Soporte
 
 Para problemas específicos:
 1. Revisa los logs de Vercel/Netlify/Railway
-2. Verifica la configuración de Supabase
+2. Verifica la configuración de Neon/Auth.js
 3. Revisa la consola del navegador para errores del cliente
