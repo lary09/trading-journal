@@ -117,6 +117,9 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply overflow-x-hidden;
+  }
   body {
     @apply bg-background text-foreground;
     background:
@@ -125,6 +128,7 @@
       linear-gradient(180deg, oklch(0.105 0.008 255), oklch(0.125 0.01 255) 35%, oklch(0.1 0.01 255));
     min-height: 100vh;
     letter-spacing: -0.01em;
+    overflow-x: hidden;
   }
 }
 
@@ -192,6 +196,13 @@
   .terminal-chip {
     @apply inline-flex items-center rounded-full border border-border/80 bg-background/70 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground;
   }
+  .mobile-nav-scroll {
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mobile-nav-scroll::-webkit-scrollbar {
+    display: none;
+  }
   .terminal-table {
     @apply overflow-hidden rounded-2xl border border-border/70 bg-black/20 backdrop-blur-sm;
   }
@@ -200,5 +211,22 @@
   }
   .terminal-table tbody tr {
     @apply transition-colors hover:bg-white/[0.03];
+  }
+  @media (max-width: 640px) {
+    [data-slot="card"]:hover,
+    .card:hover,
+    .terminal-panel:hover {
+      transform: none;
+      box-shadow: none;
+    }
+    .terminal-panel {
+      border-radius: 0.875rem;
+    }
+    [data-slot="card-header"],
+    [data-slot="card-content"],
+    [data-slot="card-footer"] {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
   }
 }

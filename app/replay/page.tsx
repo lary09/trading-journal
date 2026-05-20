@@ -82,7 +82,7 @@ export default function ReplayPage() {
               Replay over historical daily candles. Local database bars are preferred; Yahoo fallback is used only when local history is missing.
             </CardDescription>
           </CardHeader>
-          <CardContent className="h-[600px] p-4 flex flex-col">
+          <CardContent className="flex h-[420px] flex-col p-3 sm:h-[520px] md:p-4 lg:h-[600px]">
             {source && <div className="mb-3 text-xs text-muted-foreground">Source: {source === "local" ? "Local database" : "Yahoo fallback"}</div>}
             {chartData.length > 0 ? (
               <TradingViewChart data={chartData} />

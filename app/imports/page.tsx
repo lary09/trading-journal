@@ -178,13 +178,13 @@ function CsvWizard() {
             <p className="text-sm text-muted-foreground mt-1">Maximum file size 5MB</p>
           </div>
         ) : (
-          <div className="terminal-panel-muted flex items-center justify-between rounded-lg p-4">
-            <div className="flex items-center gap-3">
+          <div className="terminal-panel-muted flex flex-col gap-3 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
               <div className="rounded bg-primary/10 p-2 text-primary">
                 <File className="h-5 w-5" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-slate-200">{file.name}</p>
+              <div className="min-w-0">
+                <p className="break-words text-sm font-medium text-slate-200">{file.name}</p>
                 <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} KB • {parsedData.length} rows</p>
               </div>
             </div>
@@ -195,7 +195,7 @@ function CsvWizard() {
         )}
 
         {summary && (
-          <div className="grid grid-cols-3 gap-3 text-sm">
+          <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
             <SummaryTile label="Rows" value={summary.totalRows} />
             <SummaryTile label="Valid" value={summary.validRows} tone="positive" />
             <SummaryTile label="Invalid" value={summary.invalidRows} tone={summary.invalidRows > 0 ? "negative" : "neutral"} />
@@ -252,7 +252,7 @@ function CsvWizard() {
           {isLoading ? "Importing to Database..." : "Import " + (parsedData.length > 0 ? parsedData.length + " Trades" : "Trades")}
         </Button>
         <Separator />
-        <div className="text-xs text-muted-foreground flex justify-between">
+        <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:justify-between">
           <span>Recommended headers: symbol, entry_time, entry_price, quantity</span>
           <Link href="/api/export/trades" className="text-primary hover:underline">Download sample shape</Link>
         </div>

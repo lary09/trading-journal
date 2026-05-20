@@ -153,10 +153,10 @@ export function TradeModal({ isOpen, onClose, selectedDate }: TradeModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] bg-slate-800 border-slate-700 text-white flex flex-col">
+      <DialogContent className="max-h-[90vh] bg-slate-800 border-slate-700 text-white flex flex-col sm:max-w-2xl">
         <DialogHeader className="flex-shrink-0">
-          <div className="flex justify-between items-center">
-            <div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
               <DialogTitle className="text-xl font-bold">Add New Trade</DialogTitle>
               <DialogDescription className="text-slate-400">
                 {selectedDate ? `Trade for ${new Date(selectedDate).toLocaleDateString()}` : 'Fill in the details of your trade'}
@@ -176,7 +176,7 @@ export function TradeModal({ isOpen, onClose, selectedDate }: TradeModalProps) {
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 overflow-y-auto pr-2 -mr-2 max-h-[60vh] flex-1">
+        <form onSubmit={handleSubmit} className="-mr-2 max-h-[60vh] flex-1 space-y-6 overflow-y-auto pr-2">
           {/* Basic Trade Information */}
           <Card className="border-slate-700 bg-slate-800/50">
             <CardHeader>
@@ -213,7 +213,7 @@ export function TradeModal({ isOpen, onClose, selectedDate }: TradeModalProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="trade_type" className="text-slate-300">Trade Type</Label>
                   <Select 
@@ -234,7 +234,7 @@ export function TradeModal({ isOpen, onClose, selectedDate }: TradeModalProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="market_type" className="text-slate-300">Market Type</Label>
                   <Select 
@@ -282,7 +282,7 @@ export function TradeModal({ isOpen, onClose, selectedDate }: TradeModalProps) {
               <CardTitle className="text-sm text-slate-300">Price & Quantity</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="entry_price" className="text-slate-300">Entry Price</Label>
                   <Input
@@ -323,7 +323,7 @@ export function TradeModal({ isOpen, onClose, selectedDate }: TradeModalProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="stop_loss" className="text-slate-300">Stop Loss</Label>
                   <Input
@@ -370,7 +370,7 @@ export function TradeModal({ isOpen, onClose, selectedDate }: TradeModalProps) {
               <CardTitle className="text-sm text-slate-300">Analysis & Psychology</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="confidence_level" className="text-slate-300">Confidence (1-10)</Label>
                   <Select 
@@ -454,7 +454,7 @@ export function TradeModal({ isOpen, onClose, selectedDate }: TradeModalProps) {
           </Card>
 
           {/* Form Actions */}
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col justify-end gap-3 sm:flex-row">
             <Button
               type="button"
               variant="outline"

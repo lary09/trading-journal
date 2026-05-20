@@ -28,7 +28,7 @@ export default async function TradesPage() {
     <AppShell
       title="Trades Journal"
       cta={
-        <div className="flex gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
           <Button asChild><Link href="/trades/new"><Plus className="mr-2 h-4 w-4" />Add Trade</Link></Button>
           <Button variant="outline" asChild><Link href="/export"><Download className="mr-2 h-4 w-4" />Export</Link></Button>
         </div>
@@ -37,7 +37,7 @@ export default async function TradesPage() {
       <div className="mb-6 grid gap-4 md:gap-6 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px]">
         <Card className="terminal-panel py-6">
           <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
+            <div className="min-w-0">
               <div className="terminal-kicker mb-2">Trade Ledger</div>
               <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight text-white">Execution History</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">A dense ledger of entries, exits and outcomes for rapid review.</p>

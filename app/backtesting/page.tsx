@@ -87,8 +87,8 @@ export default function BacktestingPage() {
     >
       <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="md:col-span-2 lg:col-span-2 border-border/70">
-          <CardHeader className="flex flex-row items-center justify-between">
-              <div>
+          <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <CardTitle className="text-xl">Ejecuciones</CardTitle>
                 <CardDescription>Simple benchmark runs over stored daily closes</CardDescription>
               </div>
@@ -103,15 +103,15 @@ export default function BacktestingPage() {
                <div className="text-sm text-muted-foreground">Aún no hay runs. Esta V1 calcula benchmark simple sobre cierres diarios, no una estrategia compleja.</div>
             )}
             {runs.map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-lg border border-border/60 px-4 py-3">
-                <div>
+              <div key={s.id} className="flex flex-col gap-3 rounded-lg border border-border/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <div className="text-sm font-semibold">{s.name}</div>
                   <div className="text-xs text-muted-foreground">
                     {s.parameters?.symbol ?? "—"} {s.parameters?.start && ` · ${s.parameters?.start}`}{" "}
                     {s.parameters?.end && `→ ${s.parameters?.end}`}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3 sm:justify-end">
                   <Badge variant="outline" className="capitalize">
                     {s.status}
                   </Badge>
@@ -141,7 +141,7 @@ export default function BacktestingPage() {
               <Label>Símbolo</Label>
               <Input value={form.symbol} onChange={(e) => setForm({ ...form, symbol: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label>Inicio (YYYY-MM-DD)</Label>
                 <Input value={form.start} onChange={(e) => setForm({ ...form, start: e.target.value })} />

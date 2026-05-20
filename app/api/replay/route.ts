@@ -4,6 +4,7 @@ import { and, eq, gte, lte } from "drizzle-orm"
 import { auth } from "@/auth"
 import { db } from "@/db/client"
 import { bars1d, symbols } from "@/db/schema"
+import { getYahooDailyBars } from "@/lib/data/bars"
 
 export async function GET(req: Request) {
   const session = await auth()
@@ -26,7 +27,8 @@ export async function GET(req: Request) {
 
   // 1. Intentar cargar desde Base de Datos Local
   try {
-    const clauses = [eq(symbols.ticker, symbol.toUpperCase())]
+    const normalizedSymbol = symbol.trim().toUpperCase()
+    const clauses = [eq(symbols.ticker, normalizedSymbol)]
     if (startParam) clauses.push(gte(bars1d.tradingDay, startStr))
     if (endParam) clauses.push(lte(bars1d.tradingDay, endStr))
 
@@ -53,43 +55,14 @@ export async function GET(req: Request) {
 
   // 2. Fallback Automático: Yahoo Finance Public API (Si no hay datos locales)
   try {
-    const period1 = Math.floor(start.getTime() / 1000)
-    const period2 = Math.floor(end.getTime() / 1000) + 86400 // add 1 day to be inclusive
-    
-    const yfUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol.toUpperCase()}?interval=1d&period1=${period1}&period2=${period2}`
-    
-    const res = await fetch(yfUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      }
-    })
-    
-    if (!res.ok) throw new Error("YF API failed")
-    
-    const data = await res.json()
-    const result = data.chart.result?.[0]
-    
-     if (!result || !result.timestamp) {
-       return NextResponse.json({ bars: [], source: "yahoo", message: "No local or fallback data was found for the selected range." })
-     }
-
-    const timestamps = result.timestamp as number[]
-    const quotes = result.indicators.quote[0]
-    
-    const mappedBars = timestamps.map((ts, i) => {
-      // YF sometimes returns nulls for halted days
-      if (quotes.open[i] === null) return null
-      
-      const date = new Date(ts * 1000)
-      return {
-        tradingDay: date.toISOString().split("T")[0],
-        open: Number(quotes.open[i]).toFixed(4),
-        high: Number(quotes.high[i]).toFixed(4),
-        low: Number(quotes.low[i]).toFixed(4),
-        close: Number(quotes.close[i]).toFixed(4),
-        volume: quotes.volume[i] ? quotes.volume[i].toString() : "0",
-      }
-    }).filter(Boolean)
+    const mappedBars = (await getYahooDailyBars(symbol, start, end)).map((bar) => ({
+      tradingDay: bar.time,
+      open: bar.open.toFixed(4),
+      high: bar.high.toFixed(4),
+      low: bar.low.toFixed(4),
+      close: bar.close.toFixed(4),
+      volume: "0",
+    }))
 
     return NextResponse.json({ bars: mappedBars, source: "yahoo", message: rowsMessage(mappedBars.length) })
 

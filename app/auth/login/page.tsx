@@ -51,7 +51,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="terminal-shell flex min-h-screen items-center justify-center p-4 md:p-8">
+    <div className="terminal-shell flex min-h-screen items-center justify-center p-3 sm:p-4 md:p-8">
       <div className="grid w-full max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="terminal-panel hidden flex-col justify-between overflow-hidden p-10 lg:flex">
           <div>
@@ -69,10 +69,10 @@ export default function LoginPage() {
             <InfoTile label="Protect" value="Risk and process" />
           </div>
         </div>
-        <Card className="terminal-panel w-full py-8">
+        <Card className="terminal-panel w-full py-6 md:py-8">
           <CardHeader className="text-center">
             <div className="terminal-kicker">Sign In</div>
-            <CardTitle className="text-3xl font-semibold text-white">Open your workspace</CardTitle>
+            <CardTitle className="text-2xl font-semibold text-white md:text-3xl">Open your workspace</CardTitle>
             <CardDescription>Sign in to access your trading dashboard</CardDescription>
           </CardHeader>
           <CardContent>

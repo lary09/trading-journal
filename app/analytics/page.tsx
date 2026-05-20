@@ -33,7 +33,7 @@ export default async function AnalyticsPage() {
       <section className="mb-8 grid gap-4 md:gap-6 md:grid-cols-[1.2fr_0.8fr] lg:grid-cols-[1.15fr_0.85fr]">
         <Card className="terminal-panel py-6">
           <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
+            <div className="min-w-0">
               <div className="terminal-kicker mb-2">Advanced Review</div>
               <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">Where the edge shows up.</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Break performance down by day, hour and setup to identify where your process is strongest.</p>
@@ -103,7 +103,7 @@ function StatCard({ label, value, description, icon, tone = "neutral" }: { label
         <CardTitle className="text-sm font-medium text-slate-400">{label}</CardTitle>
       </CardHeader>
       <CardContent className="relative z-10">
-        <div className={`text-3xl font-bold tracking-tight ${color}`}>{value}</div>
+        <div className={`break-words text-2xl font-bold tracking-tight md:text-3xl ${color}`}>{value}</div>
         {description && <p className="mt-2 text-xs font-medium text-slate-500">{description}</p>}
       </CardContent>
     </Card>

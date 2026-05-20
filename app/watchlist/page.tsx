@@ -92,16 +92,16 @@ export default function WatchlistPage() {
             )}
             <div className="grid gap-2">
               {symbols.map((s) => (
-                <div key={s.id} className="flex items-center justify-between rounded border border-border/60 px-3 py-2">
-                  <div className="flex items-center gap-3">
+                <div key={s.id} className="flex flex-col gap-3 rounded border border-border/60 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:py-2">
+                  <div className="flex min-w-0 items-center gap-3">
                     <Badge variant="outline" className="text-base font-semibold">
                       {s.ticker}
                     </Badge>
-                    <div className="text-sm text-slate-300">
+                    <div className="min-w-0 break-words text-sm text-slate-300">
                       {s.name ?? "Sin nombre"} {s.exchange ? `· ${s.exchange}` : ""}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between gap-3 sm:justify-end">
                     <div className="text-xs text-muted-foreground">{s.assetType ?? "asset"}</div>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => remove(s.id)}>
                       <Trash2 className="h-4 w-4 text-rose-400" />

@@ -17,12 +17,12 @@ export default async function HomePage() {
   return (
     <div className="terminal-shell min-h-screen">
       <div className="container mx-auto px-4 py-6 md:px-8 lg:px-12">
-        <header className="mb-10 flex items-center justify-between rounded-3xl border border-border/70 bg-black/20 px-5 py-4 backdrop-blur-xl">
-          <div>
+        <header className="mb-8 flex flex-col gap-4 rounded-2xl border border-border/70 bg-black/20 px-4 py-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between md:mb-10 md:rounded-3xl md:px-5">
+          <div className="min-w-0">
             <div className="terminal-kicker mb-1">Trading Journal</div>
-            <div className="text-lg font-semibold text-white">Terminal-grade execution review</div>
+            <div className="text-base font-semibold text-white md:text-lg">Terminal-grade execution review</div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button asChild variant="ghost" className="hidden md:inline-flex">
               <Link href="/auth/login">Sign In</Link>
             </Button>
@@ -33,9 +33,9 @@ export default async function HomePage() {
         </header>
 
         <section className="mb-8 grid gap-6 lg:grid-cols-[1.35fr_0.85fr]">
-          <div className="terminal-panel overflow-hidden p-8 md:p-10">
+          <div className="terminal-panel overflow-hidden p-5 sm:p-8 md:p-10">
             <div className="terminal-kicker mb-4">Professional workflow</div>
-            <h1 className="max-w-4xl text-5xl font-semibold leading-[1.02] tracking-tight text-white md:text-6xl">
+            <h1 className="max-w-4xl text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl md:text-6xl">
               Replace spreadsheet chaos with a trading desk built for review, discipline and repeatability.
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
@@ -98,7 +98,7 @@ export default async function HomePage() {
           <Card className="terminal-panel mx-auto max-w-4xl overflow-hidden py-8">
             <CardHeader>
               <div className="terminal-kicker">Start clean</div>
-              <CardTitle className="text-3xl text-white">Build a sharper review loop before the next session opens.</CardTitle>
+            <CardTitle className="text-2xl text-white md:text-3xl">Build a sharper review loop before the next session opens.</CardTitle>
               <CardDescription>
                 Create your workspace, import your trades and start building an evidence-based process.
               </CardDescription>

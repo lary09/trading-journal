@@ -89,7 +89,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="terminal-shell flex min-h-screen items-center justify-center p-4 md:p-8">
+    <div className="terminal-shell flex min-h-screen items-center justify-center p-3 sm:p-4 md:p-8">
       <div className="grid w-full max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="terminal-panel hidden p-10 lg:flex lg:flex-col lg:justify-between">
           <div>
@@ -104,10 +104,10 @@ export default function SignupPage() {
             <div className="terminal-panel-muted p-4 text-sm text-white">Import trades later or start logging executions manually.</div>
           </div>
         </div>
-        <Card className="terminal-panel py-8">
+        <Card className="terminal-panel py-6 md:py-8">
           <CardHeader className="text-center">
             <div className="terminal-kicker">Sign Up</div>
-            <CardTitle className="text-3xl font-semibold text-white">Create your workspace</CardTitle>
+            <CardTitle className="text-2xl font-semibold text-white md:text-3xl">Create your workspace</CardTitle>
             <CardDescription>Create your account to start tracking trades</CardDescription>
           </CardHeader>
           <CardContent>

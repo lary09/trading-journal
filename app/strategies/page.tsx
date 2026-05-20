@@ -133,7 +133,7 @@ export default function StrategiesPage() {
     <AppShell
       title="Strategies"
       cta={
-        <div className="flex gap-3">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:gap-3">
           <Button variant="outline" size="sm" onClick={() => window.history.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
@@ -148,7 +148,7 @@ export default function StrategiesPage() {
       <div className="space-y-6">
         <Card className="terminal-panel py-6">
           <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
+            <div className="min-w-0">
               <div className="terminal-kicker mb-2">Playbook</div>
               <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">Strategy library</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -193,7 +193,7 @@ export default function StrategiesPage() {
                   <MetricBlock label="Linked trades" value="Available from trade log" />
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="outline" size="sm" className="flex-1" asChild>
                     <Link href="/trades">
                       <BarChart3 className="mr-2 h-4 w-4" />
@@ -242,7 +242,7 @@ export default function StrategiesPage() {
                   <Textarea id="description" value={newStrategy.description} onChange={(e) => setNewStrategy({ ...newStrategy, description: e.target.value })} placeholder="Describe the setup, trigger and invalidation..." rows={3} />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="riskLevel" className="text-slate-200">Risk Level</Label>
                     <Select value={newStrategy.riskLevel} onValueChange={(value) => setNewStrategy({ ...newStrategy, riskLevel: value })}>
@@ -271,7 +271,7 @@ export default function StrategiesPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="maxRiskPerTrade" className="text-slate-200">Max Risk %</Label>
                     <Input id="maxRiskPerTrade" type="number" min="0" step="0.01" value={newStrategy.maxRiskPerTrade} onChange={(e) => setNewStrategy({ ...newStrategy, maxRiskPerTrade: e.target.value })} placeholder="1.00" />
@@ -283,7 +283,7 @@ export default function StrategiesPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-4">
+                <div className="flex flex-col gap-2 pt-4 sm:flex-row">
                   <Button onClick={handleCreateStrategy} className="flex-1" disabled={isSaving}>
                     <Target className="mr-2 h-4 w-4" />
                     {isSaving ? "Saving..." : "Create Strategy"}

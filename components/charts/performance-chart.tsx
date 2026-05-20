@@ -129,21 +129,21 @@ export function PerformanceChart({ data, className }: PerformanceChartProps) {
         </div>
         
         {/* Performance Metrics */}
-        <div className="grid grid-cols-3 gap-4 mt-6">
+        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
           <div className="text-center p-3 bg-slate-700/50 rounded-lg">
-            <div className="text-2xl font-bold text-white">
+            <div className="break-words text-xl font-bold text-white md:text-2xl">
               {data.length > 0 ? data[data.length - 1].cumulative : 0}
             </div>
             <div className="text-sm text-slate-400">Total P&L</div>
           </div>
           <div className="text-center p-3 bg-slate-700/50 rounded-lg">
-            <div className="text-2xl font-bold text-white">
+            <div className="break-words text-xl font-bold text-white md:text-2xl">
               {data.reduce((sum, item) => sum + item.trades, 0)}
             </div>
             <div className="text-sm text-slate-400">Total Trades</div>
           </div>
           <div className="text-center p-3 bg-slate-700/50 rounded-lg">
-            <div className="text-2xl font-bold text-white">
+            <div className="break-words text-xl font-bold text-white md:text-2xl">
               {data.length > 0 ? (data[data.length - 1].cumulative / data.reduce((sum, item) => sum + item.trades, 0)).toFixed(2) : 0}
             </div>
             <div className="text-sm text-slate-400">Avg per Trade</div>

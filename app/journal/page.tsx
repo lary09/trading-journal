@@ -73,9 +73,9 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
 
   return (
     <AppShell title="Daily Journal">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 h-[calc(100vh-10rem)] max-h-[900px]">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-4 lg:h-[calc(100vh-10rem)] lg:max-h-[900px]">
         {/* LEFT COLUMN: Datelist */}
-        <div className="lg:col-span-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
+        <div className="space-y-2 overflow-y-auto lg:col-span-1 lg:pr-2 custom-scrollbar">
           {dayStats.length === 0 && (
             <div className="terminal-panel-muted rounded-lg p-4 text-center text-muted-foreground">
               No trading days yet
@@ -111,7 +111,7 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
         </div>
 
         {/* RIGHT COLUMN: Details & Editor */}
-        <div className="lg:col-span-3 flex flex-col gap-6 overflow-y-auto custom-scrollbar pb-6 pr-2">
+        <div className="flex flex-col gap-6 overflow-y-auto pb-6 lg:col-span-3 lg:pr-2 custom-scrollbar">
           {!selectedStats ? (
              <Card className="terminal-panel h-full flex items-center justify-center">
                <CardDescription>Select a day from the left to view journal details.</CardDescription>
@@ -128,7 +128,7 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
 
               {/* Text Rich Journal Editor */}
               <Card className="terminal-panel overflow-hidden">
-                 <CardContent className="p-6">
+                 <CardContent className="p-4 md:p-6">
                     <JournalEditor date={selectedDate} initialNotes={initialNotes} />
                  </CardContent>
               </Card>
@@ -149,6 +149,7 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
                             <th className="px-3 py-2 text-right">Entry</th>
                             <th className="px-3 py-2 text-right">Return $</th>
                             <th className="px-3 py-2 text-center">Side</th>
+                            <th className="px-3 py-2 text-right">Detail</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border/60 text-xs md:text-sm">
@@ -175,6 +176,11 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
                                   </td>
                                   <td className="px-3 py-2 text-center">
                                      <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-bold border ${t.tradeType === 'long' ? 'border-emerald-500 text-emerald-400' : 'border-rose-500 text-rose-400'}`}>{t.tradeType}</span>
+                                  </td>
+                                  <td className="px-3 py-2 text-right">
+                                    <Link href={`/trades/${t.id}`} className="text-primary underline-offset-4 hover:underline">
+                                      View
+                                    </Link>
                                   </td>
                                </tr>
                              )

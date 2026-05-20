@@ -59,13 +59,13 @@ export default function InsightsPage() {
             {loading && <div className="text-sm text-muted-foreground">Calculando insights...</div>}
             {!loading &&
               insights.map((text, i) => (
-                <div key={i} className="rounded-lg border border-border/70 bg-card/70 p-3 flex gap-2">
-                  <Lightbulb className="h-4 w-4 text-amber-400 mt-0.5" />
+                <div key={i} className="flex gap-2 rounded-lg border border-border/70 bg-card/70 p-3">
+                  <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
                   <div className="text-sm leading-relaxed">{text}</div>
                 </div>
               ))}
             <div className="border-t border-border/70 pt-4 space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Sparkles className="h-4 w-4 text-primary" />
                   Insights con GPT

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { signOut } from "next-auth/react"
 import { usePathname } from "next/navigation"
 import { ReactNode } from "react"
-import { BarChart3, Calendar, ChevronRight, Home, Layers, PlayCircle, Shield, Target, Upload, Wallet } from "lucide-react"
+import { BarChart3, BookOpen, Calendar, ChevronRight, Home, Layers, PlayCircle, PlusCircle, Shield, Target, Upload, Wallet } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -17,6 +17,9 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
+  { href: "/trades/new", label: "Log Trade", icon: PlusCircle },
+  { href: "/journal", label: "Daily Journal", icon: BookOpen },
+  { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/insights", label: "Insights", icon: Target },
   { href: "/backtesting", label: "Backtesting", icon: PlayCircle },
@@ -24,19 +27,17 @@ const navItems: NavItem[] = [
   { href: "/replay", label: "Replay", icon: PlayCircle },
   { href: "/watchlist", label: "Watchlist", icon: Upload },
   { href: "/imports", label: "Imports", icon: Upload },
-  { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/strategies", label: "Strategies", icon: Layers },
   { href: "/export", label: "Exports", icon: Wallet },
 ]
 
 export function AppShell({ title, cta, children }: { title?: string; cta?: ReactNode; children: ReactNode }) {
   const pathname = usePathname()
-  const mobileItems = navItems.slice(0, 6)
 
   return (
     <div className="terminal-shell min-h-screen text-foreground">
       <div className="flex min-h-screen">
-        <aside className="hidden w-[288px] shrink-0 border-r border-border/60 bg-[--color-sidebar]/90 px-4 py-5 text-[--color-sidebar-foreground] backdrop-blur-xl md:flex md:flex-col">
+        <aside className="hidden w-[288px] shrink-0 border-r border-border/60 bg-[--color-sidebar]/90 px-4 py-5 text-[--color-sidebar-foreground] backdrop-blur-xl lg:flex lg:flex-col">
           <div className="terminal-panel mb-5 overflow-hidden px-5 py-5">
             <div className="terminal-kicker mb-2">Trading Ops</div>
             <div className="flex items-center justify-between">
@@ -49,10 +50,10 @@ export function AppShell({ title, cta, children }: { title?: string; cta?: React
               </div>
             </div>
           </div>
-          <nav className="flex-1 space-y-1.5">
+          <nav className="flex-1 space-y-1.5 overflow-y-auto pr-1">
             {navItems.map((item) => {
               const Icon = item.icon
-              const active = pathname === item.href
+              const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`))
               return (
                 <Link key={item.href} href={item.href} className="block">
                   <div
@@ -82,11 +83,11 @@ export function AppShell({ title, cta, children }: { title?: string; cta?: React
             </Button>
           </div>
         </aside>
-        <main className="flex-1">
+        <main className="min-w-0 flex-1">
           <header className="sticky top-0 z-20 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 md:py-4 md:px-8">
+            <div className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between md:gap-4 md:px-8 md:py-4">
               <div className="flex items-center gap-3 md:gap-4 min-w-0">
-                <div className="md:hidden flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary flex-shrink-0">
+                <div className="lg:hidden flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary flex-shrink-0">
                   <BarChart3 className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
@@ -94,14 +95,14 @@ export function AppShell({ title, cta, children }: { title?: string; cta?: React
                   <span className="text-lg md:text-xl font-semibold tracking-tight text-white truncate">{title}</span>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 md:gap-3">
+              <div className="flex w-full flex-wrap gap-2 sm:w-auto md:gap-3 [&_a]:min-w-0 [&_button]:min-w-0">
                 {cta}
               </div>
             </div>
-            <div className="flex gap-2 overflow-x-auto px-4 pb-4 md:hidden">
-              {mobileItems.map((item) => {
+            <div className="mobile-nav-scroll flex gap-2 overflow-x-auto px-4 pb-4 lg:hidden">
+              {navItems.map((item) => {
                 const Icon = item.icon
-                const active = pathname === item.href
+                const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`))
                 return (
                   <Link key={item.href} href={item.href} className={cn("terminal-chip shrink-0", active && "border-primary/35 bg-primary/10 text-primary")}>
                     <Icon className="mr-2 h-3.5 w-3.5" />

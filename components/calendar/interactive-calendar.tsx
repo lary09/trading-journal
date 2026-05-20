@@ -1,7 +1,8 @@
 "use client"
 
+import Link from "next/link"
 import * as React from "react"
-import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp, BarChart3, Calendar as CalendarIcon } from "lucide-react"
+import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp, BarChart3, Calendar as CalendarIcon, ExternalLink } from "lucide-react"
 import {
   addMonths,
   eachDayOfInterval,
@@ -112,9 +113,9 @@ export function InteractiveCalendar({ trades }: InteractiveCalendarProps) {
       </div>
 
       <Card className="bg-slate-950/80 border-slate-800 shadow-xl ring-1 ring-white/5 mx-auto">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 px-6 py-4 border-b border-slate-800">
-          <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-bold tracking-tight text-white">{format(currentDate, "MMMM yyyy")}</h2>
+        <CardHeader className="flex flex-col gap-3 space-y-0 border-b border-slate-800 px-4 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6">
+          <div className="flex min-w-0 items-center gap-4">
+            <h2 className="truncate text-xl font-bold tracking-tight text-white md:text-2xl">{format(currentDate, "MMMM yyyy")}</h2>
             <Button variant="outline" size="sm" onClick={jumpToToday} className="hidden sm:inline-flex bg-slate-900/50 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800">
               Today
             </Button>
@@ -130,20 +131,22 @@ export function InteractiveCalendar({ trades }: InteractiveCalendarProps) {
         </CardHeader>
 
         <CardContent className="p-0">
-          <div className="grid grid-cols-7 border-b border-slate-800 bg-slate-900/30">
-            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
-              <div key={day} className="py-3 text-center text-xs font-semibold text-slate-500 tracking-wider">
-                {day}
-              </div>
-            ))}
-          </div>
+          <div className="overflow-x-auto">
+            <div className="grid min-w-[640px] grid-cols-7 border-b border-slate-800 bg-slate-900/30">
+              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+                <div key={day} className="py-3 text-center text-xs font-semibold text-slate-500 tracking-wider">
+                  {day}
+                </div>
+              ))}
+            </div>
           
-          <div className="grid grid-cols-7">
-            {days.map((day, dayIdx) => {
+            <div className="grid min-w-[640px] grid-cols-7">
+              {days.map((day, dayIdx) => {
               const dateStr = format(day, "yyyy-MM-dd")
               const dayTrades = tradesByDay.get(dateStr) || []
               let dailyPnL = 0
               dayTrades.forEach((t) => (dailyPnL += t.profitLoss ?? 0))
+              const dayHref = dayTrades.length === 1 ? `/trades/${dayTrades[0].id}` : `/journal?date=${dateStr}`
 
               const isCurrentMonth = isSameMonth(day, currentDate)
               const isTodayDate = isToday(day)
@@ -168,13 +171,20 @@ export function InteractiveCalendar({ trades }: InteractiveCalendarProps) {
                 <div
                   key={day.toString()}
                   className={cn(
-                    "min-h-[100px] border-b border-r border-slate-800 p-2 transition-colors relative group",
+                    "relative min-h-[88px] border-b border-r border-slate-800 p-2 transition-colors group md:min-h-[100px]",
                     !isCurrentMonth && "opacity-40",
                     isCurrentMonth && "bg-slate-900/20",
                     boxStyles,
                     dayIdx % 7 === 6 && "border-r-0"
                   )}
                 >
+                  {dayTrades.length > 0 && (
+                    <Link
+                      href={dayHref}
+                      aria-label={dayTrades.length === 1 ? `Open ${dayTrades[0].symbol} trade detail` : `Open journal for ${dateStr}`}
+                      className="absolute inset-0 z-[9]"
+                    />
+                  )}
                   <div className="flex justify-between items-start">
                     <span
                       className={cn(
@@ -185,23 +195,27 @@ export function InteractiveCalendar({ trades }: InteractiveCalendarProps) {
                       {format(day, dateFormat)}
                     </span>
                     {dayTrades.length > 0 && (
-                      <span className="text-[10px] text-slate-500 bg-slate-900/80 px-1.5 py-0.5 rounded-full border border-slate-700/50">
+                      <span className="relative z-[2] text-[10px] text-slate-500 bg-slate-900/80 px-1.5 py-0.5 rounded-full border border-slate-700/50">
                         {dayTrades.length} trades
                       </span>
                     )}
                   </div>
                   
                   {dayTrades.length > 0 && (
-                    <div className="mt-3 text-right">
-                      <div className={cn("text-lg", pnlColor)}>
+                    <div className="relative z-[2] mt-3 text-right">
+                      <div className={cn("text-sm font-semibold md:text-lg", pnlColor)}>
                         {dailyPnL > 0 ? "+" : ""}{formatCurrency(dailyPnL)}
+                      </div>
+                      <div className="mt-1 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-slate-500">
+                        {dayTrades.length === 1 ? "Detail" : "Journal"}
+                        <ExternalLink className="h-3 w-3" />
                       </div>
                     </div>
                   )}
 
                   {/* Tooltip on hover for extra info */}
                   {dayTrades.length > 0 && (
-                    <div className="absolute inset-0 z-10 hidden group-hover:flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity p-2 text-center overflow-hidden">
+                    <div className="pointer-events-none absolute inset-0 z-10 hidden group-hover:flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity p-2 text-center overflow-hidden">
                        <p className="text-xs font-semibold text-slate-300 mb-1">Trades</p>
                        <div className="flex flex-wrap gap-1 justify-center max-h-12 overflow-hidden">
                         {dayTrades.slice(0, 3).map(t => (
@@ -213,7 +227,8 @@ export function InteractiveCalendar({ trades }: InteractiveCalendarProps) {
                   )}
                 </div>
               )
-            })}
+              })}
+            </div>
           </div>
         </CardContent>
       </Card>

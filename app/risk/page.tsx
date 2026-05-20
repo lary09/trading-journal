@@ -81,7 +81,7 @@ export default function RiskPage() {
                 onChange={(v) => setRule({ ...rule, maxRiskPerTrade: v })}
               />
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-start gap-3 sm:items-center">
               <Switch checked={rule.alertsEnabled} onCheckedChange={(val) => setRule({ ...rule, alertsEnabled: val })} />
               <span className="text-sm text-muted-foreground">Habilitar alertas cuando se violen las reglas</span>
             </div>
@@ -132,12 +132,12 @@ function Field({ label, value, onChange }: { label: string; value: string | numb
 
 function StatusLine({ label, value, limit, breached }: { label: string; value: number; limit: number | null; breached: boolean }) {
   return (
-    <div className="flex items-center justify-between rounded-md border border-border/70 px-3 py-2">
-      <div>
+    <div className="flex flex-col gap-3 rounded-md border border-border/70 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
         <div className="text-slate-200">{label}</div>
         <div className="text-xs text-muted-foreground">Límite: {limit ? `-$${Number(limit).toFixed(2)}` : "No definido"}</div>
       </div>
-      <div className={`flex items-center gap-2 text-sm ${breached ? "text-rose-400" : "text-emerald-400"}`}>
+      <div className={`flex shrink-0 items-center gap-2 text-sm ${breached ? "text-rose-400" : "text-emerald-400"}`}>
         {breached ? <AlertTriangle className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
         <span>{value >= 0 ? `$${value.toFixed(2)}` : `-$${Math.abs(value).toFixed(2)}`}</span>
       </div>

@@ -43,7 +43,7 @@ export default function ExportPage() {
       <div className="space-y-6">
         <Card className="terminal-panel py-6">
           <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
+            <div className="min-w-0">
               <div className="terminal-kicker mb-2">Data Portability</div>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-white">Export your trading record.</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">

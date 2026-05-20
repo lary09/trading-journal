@@ -70,7 +70,7 @@ export default async function DashboardPage() {
     <AppShell
       title="Dashboard"
       cta={
-        <div className="flex items-center gap-3">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto md:gap-3">
           <div className="hidden items-center gap-2 text-sm text-muted-foreground md:flex">
             <User className="h-4 w-4" />
             <span>{session.user.email ?? "Account"}</span>
@@ -87,9 +87,9 @@ export default async function DashboardPage() {
       <RiskBanner />
 
       <section className="mb-6 md:mb-8 grid gap-4 md:gap-6 lg:grid-cols-2 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card className="terminal-panel overflow-hidden border-primary/10 py-7">
+        <Card className="terminal-panel overflow-hidden border-primary/10 py-6 md:py-7">
           <CardContent className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div>
+            <div className="min-w-0">
               <div className="terminal-kicker mb-3">Session Overview</div>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-white">{tradeSet.length ? "Your execution desk is live." : "Your trading journal is ready."}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
                   : "Log your first trade to unlock real dashboard metrics, recent executions and analytics."}
               </p>
             </div>
-            <div className="grid min-w-[240px] gap-3 sm:grid-cols-2">
+            <div className="grid w-full gap-3 sm:grid-cols-2 md:w-auto md:min-w-[240px]">
               <MetricTile label="Net closed P&L" value={formatCurrency(totalPnl)} tone={totalPnl >= 0 ? "positive" : "negative"} />
               <MetricTile label="Closed win rate" value={`${winRate.toFixed(1)}%`} />
             </div>
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mb-6 md:mb-8 grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-3">
-        <Card className="terminal-panel col-span-2">
+        <Card className="terminal-panel lg:col-span-2">
           <CardHeader>
             <div className="terminal-kicker">Performance</div>
             <CardTitle className="text-white">Equity Curve</CardTitle>
@@ -164,7 +164,7 @@ export default async function DashboardPage() {
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               The dashboard no longer uses demo trades. Your real metrics will appear here as soon as you record your first execution.
             </p>
-            <div className="mt-5 flex gap-3">
+            <div className="mt-5 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               <Button asChild><Link href="/trades/new">Log First Trade</Link></Button>
               <Button variant="outline" asChild><Link href="/imports">Import CSV</Link></Button>
             </div>
@@ -173,7 +173,7 @@ export default async function DashboardPage() {
       )}
 
       <Card className="terminal-table mb-8 border-border/70 bg-transparent py-0 shadow-none">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800/50 pb-4">
+        <CardHeader className="flex flex-col gap-3 border-b border-slate-800/50 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="terminal-kicker">Recent Executions</div>
             <CardTitle className="text-lg font-medium text-white">Recent Trades</CardTitle>

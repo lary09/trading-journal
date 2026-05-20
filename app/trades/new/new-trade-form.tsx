@@ -171,7 +171,7 @@ export function NewTradeForm({ strategies: initialStrategies, initialData, mode 
         <section className="grid gap-4 md:gap-6 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px]">
           <Card className="terminal-panel py-6">
             <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div>
+              <div className="min-w-0">
                 <div className="terminal-kicker mb-2">Execution Capture</div>
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-white">{mode === "edit" ? "Refine the trade record with final context." : "Log the trade before the details fade."}</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -636,7 +636,7 @@ export function NewTradeForm({ strategies: initialStrategies, initialData, mode 
             </Card>
           )}
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
             <Button
               type="submit"
               className="flex-1"

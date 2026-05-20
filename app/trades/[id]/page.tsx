@@ -9,7 +9,7 @@ import { AppShell } from "@/components/layout/app-shell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getBarsForSymbol } from "@/lib/data/bars"
+import { getBarsForSymbolWithFallback } from "@/lib/data/bars"
 import { getTradeById } from "@/lib/data/trades"
 
 function formatCurrency(value: number | null | undefined, decimals = 2) {
@@ -34,7 +34,8 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
 
   const chartStart = subDays(trade.entryTime, 30)
   const chartEnd = addDays(trade.exitTime ?? trade.entryTime, 30)
-  const bars = await getBarsForSymbol(trade.symbol, chartStart, chartEnd)
+  const chart = await getBarsForSymbolWithFallback(trade.symbol, chartStart, chartEnd)
+  const bars = chart.bars
 
   const markers: any[] = []
   if (trade.entryTime) {
@@ -61,7 +62,7 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
     <AppShell
       title={`Trade Detail: ${trade.symbol}`}
       cta={
-        <div className="flex gap-2">
+        <div className="flex w-full gap-2 sm:w-auto">
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -77,13 +78,19 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div className="space-y-6 xl:col-span-2">
           <Card className="terminal-panel overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <div>
+            <CardHeader className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <CardTitle className="flex items-center gap-2 text-xl text-white">
                   <BarChart3 className="h-5 w-5 text-indigo-400" />
                   {trade.symbol} Chart
                 </CardTitle>
-                <CardDescription>{bars.length ? "Historical daily bars from local market data" : "No local market data available for this trade yet"}</CardDescription>
+                <CardDescription>
+                  {bars.length
+                    ? chart.source === "local"
+                      ? "Historical daily bars from local market data"
+                      : "Historical daily bars loaded from Yahoo fallback"
+                    : "No market data available for this trade yet"}
+                </CardDescription>
               </div>
               <Badge variant={isLong ? "default" : "destructive"} className="px-3 py-1 text-sm">
                 {isLong ? "LONG" : "SHORT"}
@@ -91,16 +98,16 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
             </CardHeader>
             <CardContent className="relative border-t border-border/60 p-0">
               {bars.length ? (
-                <div className="h-[500px] w-full">
+                <div className="h-[360px] w-full sm:h-[440px] lg:h-[500px]">
                   <TradingViewChart data={bars} markers={markers} />
                 </div>
               ) : (
-                <div className="flex h-[500px] items-center justify-center bg-slate-950/40 p-8 text-center text-sm text-muted-foreground">
-                  Sync this symbol from the watchlist or provider routes to unlock real chart context for the trade detail page.
+                <div className="flex h-[360px] items-center justify-center bg-slate-950/40 p-5 text-center text-sm text-muted-foreground sm:h-[440px] sm:p-8 lg:h-[500px]">
+                  No local bars or Yahoo fallback data were found for this symbol and date range.
                 </div>
               )}
 
-              <div className="terminal-panel-muted absolute left-4 top-4 flex gap-4 rounded-lg p-3 shadow-xl">
+              <div className="terminal-panel-muted static flex gap-4 rounded-none border-x-0 border-b-0 p-3 shadow-xl sm:absolute sm:left-4 sm:top-4 sm:rounded-lg">
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold uppercase text-muted-foreground">Net P&L</span>
                   <span className={`text-lg font-bold ${isWinner ? "text-emerald-400" : "text-rose-400"}`}>
