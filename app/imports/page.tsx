@@ -45,7 +45,7 @@ export default function ImportsPage() {
     <AppShell
       title="Imports"
       cta={
-        <Button asChild className="bg-[--primary] text-[--primary-foreground]">
+        <Button asChild>
           <Link href="#">Start import</Link>
         </Button>
       }
@@ -53,7 +53,7 @@ export default function ImportsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <CsvWizard />
 
-        <Card className="border-border/70 bg-card/80 backdrop-blur">
+        <Card className="terminal-panel">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Plug className="h-5 w-5" />
@@ -141,9 +141,9 @@ function CsvWizard() {
   }
 
   return (
-    <Card className="border-border/70 bg-card/80 backdrop-blur shadow-lg">
+    <Card className="terminal-panel">
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2 text-indigo-400">
+        <CardTitle className="text-lg flex items-center gap-2 text-primary">
           <CloudUpload className="h-5 w-5" />
           CSV Upload
         </CardTitle>
@@ -152,26 +152,26 @@ function CsvWizard() {
       <CardContent className="space-y-6">
         
         {!file ? (
-          <div className="border-2 border-dashed border-slate-700/50 rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-800/50 transition-colors relative group">
+          <div className="group relative flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border/70 p-8 text-center transition-colors hover:bg-white/[0.03]">
             <input 
               type="file" 
               accept=".csv" 
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               onChange={handleFileChange}
             />
-            <UploadCloud className="h-10 w-10 text-slate-400 mb-3 group-hover:text-indigo-400 transition-colors" />
+            <UploadCloud className="h-10 w-10 text-muted-foreground mb-3 group-hover:text-primary transition-colors" />
             <h3 className="font-medium text-slate-200">Click or drag CSV file here</h3>
-            <p className="text-sm text-slate-500 mt-1">Maximum file size 5MB</p>
+            <p className="text-sm text-muted-foreground mt-1">Maximum file size 5MB</p>
           </div>
         ) : (
-          <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-800 flex items-center justify-between">
+          <div className="terminal-panel-muted flex items-center justify-between rounded-lg p-4">
             <div className="flex items-center gap-3">
-              <div className="bg-indigo-500/10 p-2 rounded text-indigo-400">
+              <div className="rounded bg-primary/10 p-2 text-primary">
                 <File className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-sm font-medium text-slate-200">{file.name}</p>
-                <p className="text-xs text-slate-500">{(file.size / 1024).toFixed(1)} KB • {parsedData.length} rows</p>
+                <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} KB • {parsedData.length} rows</p>
               </div>
             </div>
             <Button variant="ghost" size="sm" onClick={() => { setFile(null); setParsedData([]); setPreview([]); setStatus(null); }}>
@@ -182,17 +182,17 @@ function CsvWizard() {
 
         {preview.length > 0 && (
            <div className="space-y-3">
-             <h4 className="text-sm font-medium text-slate-400">Preview Data</h4>
-             <div className="bg-slate-950 rounded-md overflow-hidden overflow-x-auto border border-slate-800">
+             <h4 className="text-sm font-medium text-muted-foreground">Preview Data</h4>
+             <div className="terminal-table overflow-x-auto rounded-lg">
                <table className="w-full text-left text-xs text-slate-300">
-                 <thead className="bg-slate-900 text-slate-400">
+                 <thead className="text-muted-foreground">
                    <tr>
                      <th className="px-3 py-2">Symbol</th>
                      <th className="px-3 py-2">Entry Time</th>
                      <th className="px-3 py-2 text-right">P&L</th>
                    </tr>
                  </thead>
-                 <tbody className="divide-y divide-slate-800">
+                 <tbody className="divide-y divide-border/60">
                    {preview.map((row, i) => (
                      <tr key={i}>
                        <td className="px-3 py-2 font-medium">{row.symbol || row.Symbol || row.ticker || "N/A"}</td>
@@ -213,13 +213,13 @@ function CsvWizard() {
           </div>
         )}
 
-        <Button onClick={handleImport} disabled={isLoading || parsedData.length === 0} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white gap-2">
+        <Button onClick={handleImport} disabled={isLoading || parsedData.length === 0} className="w-full gap-2">
           {isLoading ? "Importing to Database..." : "Import " + (parsedData.length > 0 ? parsedData.length + " Trades" : "Trades")}
         </Button>
-        <Separator className="border-slate-800" />
-        <div className="text-xs text-slate-500 flex justify-between">
+        <Separator />
+        <div className="text-xs text-muted-foreground flex justify-between">
           <span>Required headers: symbol, entry_time</span>
-          <Link href="#" className="text-indigo-400 hover:underline">Download template</Link>
+          <Link href="#" className="text-primary hover:underline">Download template</Link>
         </div>
       </CardContent>
     </Card>

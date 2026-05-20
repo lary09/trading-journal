@@ -88,23 +88,38 @@ export default function StrategiesPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-          <Button onClick={() => setShowNewForm(true)} className="bg-[--primary] text-[--primary-foreground]">
+          <Button onClick={() => setShowNewForm(true)}>
             <Plus className="h-4 w-4 mr-2" />
             New Strategy
           </Button>
         </div>
       }
     >
-      <div className="container mx-auto px-4 py-8">
-        {/* Strategy Cards */}
+      <div className="space-y-6">
+        <Card className="terminal-panel py-6">
+          <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="terminal-kicker mb-2">Playbook</div>
+              <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">Strategy library</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                Keep your setups, timeframes and live testing status organized before they hit the ledger.
+              </p>
+            </div>
+            <div className="terminal-panel-muted px-4 py-3">
+              <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Strategies</div>
+              <div className="mt-2 text-3xl font-semibold text-white">{strategies.length}</div>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {strategies.map((strategy) => (
-            <Card key={strategy.id} className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">
+            <Card key={strategy.id} className="terminal-panel">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="text-lg text-white">{strategy.name}</CardTitle>
-                    <CardDescription className="text-slate-300 mt-2">
+                    <CardDescription className="mt-2">
                       {strategy.description}
                     </CardDescription>
                   </div>
@@ -120,36 +135,36 @@ export default function StrategiesPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-slate-400">Type:</span>
+                      <span className="text-muted-foreground">Type:</span>
                       <div className="text-white font-medium">{strategy.type}</div>
                     </div>
                     <div>
-                      <span className="text-slate-400">Timeframe:</span>
+                      <span className="text-muted-foreground">Timeframe:</span>
                       <div className="text-white font-medium">{strategy.timeframe}</div>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div className="text-center">
+                    <div className="terminal-panel-muted p-3 text-center">
                       <div className="text-2xl font-bold text-green-400">{strategy.success_rate}%</div>
-                      <div className="text-xs text-slate-400">Success Rate</div>
+                      <div className="text-xs text-muted-foreground">Success Rate</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-400">{strategy.total_trades}</div>
-                      <div className="text-xs text-slate-400">Total Trades</div>
+                    <div className="terminal-panel-muted p-3 text-center">
+                      <div className="text-2xl font-bold text-sky-400">{strategy.total_trades}</div>
+                      <div className="text-xs text-muted-foreground">Total Trades</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-400">{strategy.avg_profit}%</div>
-                      <div className="text-xs text-slate-400">Avg Profit</div>
+                    <div className="terminal-panel-muted p-3 text-center">
+                      <div className="text-2xl font-bold text-primary">{strategy.avg_profit}%</div>
+                      <div className="text-xs text-muted-foreground">Avg Profit</div>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1 border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200">
+                    <Button variant="outline" size="sm" className="flex-1">
                       <BarChart3 className="h-4 w-4 mr-2" />
                       View Trades
                     </Button>
-                    <Button variant="outline" size="sm" className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200">
+                    <Button variant="outline" size="sm">
                       <Settings className="h-4 w-4" />
                     </Button>
                   </div>
@@ -159,15 +174,12 @@ export default function StrategiesPage() {
           ))}
         </div>
 
-        {/* New Strategy Form */}
         {showNewForm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <Card className="w-full max-w-md border-slate-700 bg-slate-800/50 backdrop-blur-sm">
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+            <Card className="terminal-panel w-full max-w-md">
               <CardHeader>
                 <CardTitle className="text-white">Create New Strategy</CardTitle>
-                <CardDescription className="text-slate-300">
-                  Define a new trading strategy
-                </CardDescription>
+                <CardDescription>Define a new trading strategy</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -176,7 +188,6 @@ export default function StrategiesPage() {
                     id="name"
                     value={newStrategy.name}
                     onChange={(e) => setNewStrategy({...newStrategy, name: e.target.value})}
-                    className="bg-slate-700 border-slate-600 text-white"
                     placeholder="e.g., Breakout Trading"
                   />
                 </div>
@@ -187,7 +198,6 @@ export default function StrategiesPage() {
                     id="description"
                     value={newStrategy.description}
                     onChange={(e) => setNewStrategy({...newStrategy, description: e.target.value})}
-                    className="bg-slate-700 border-slate-600 text-white"
                     placeholder="Describe your strategy..."
                     rows={3}
                   />
@@ -197,10 +207,10 @@ export default function StrategiesPage() {
                   <div>
                     <Label htmlFor="type" className="text-slate-200">Type</Label>
                     <Select value={newStrategy.type} onValueChange={(value) => setNewStrategy({...newStrategy, type: value})}>
-                      <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                      <SelectTrigger>
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-700 border-slate-600">
+                      <SelectContent>
                         <SelectItem value="Technical">Technical</SelectItem>
                         <SelectItem value="Fundamental">Fundamental</SelectItem>
                         <SelectItem value="Hybrid">Hybrid</SelectItem>
@@ -211,10 +221,10 @@ export default function StrategiesPage() {
                   <div>
                     <Label htmlFor="timeframe" className="text-slate-200">Timeframe</Label>
                     <Select value={newStrategy.timeframe} onValueChange={(value) => setNewStrategy({...newStrategy, timeframe: value})}>
-                      <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                      <SelectTrigger>
                         <SelectValue placeholder="Select timeframe" />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-700 border-slate-600">
+                      <SelectContent>
                         <SelectItem value="1M">1 Minute</SelectItem>
                         <SelectItem value="5M">5 Minutes</SelectItem>
                         <SelectItem value="15M">15 Minutes</SelectItem>
@@ -229,14 +239,13 @@ export default function StrategiesPage() {
                 <div className="flex gap-2 pt-4">
                   <Button 
                     onClick={handleCreateStrategy}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    className="flex-1"
                   >
                     Create Strategy
                   </Button>
                   <Button 
                     variant="outline"
                     onClick={() => setShowNewForm(false)}
-                    className="border-slate-500 text-slate-200 hover:bg-slate-600 hover:text-white hover:border-slate-400 bg-slate-800/50 transition-all duration-200"
                   >
                     Cancel
                   </Button>

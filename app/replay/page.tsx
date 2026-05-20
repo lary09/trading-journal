@@ -63,7 +63,7 @@ export default function ReplayPage() {
       }
     >
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card className="terminal-panel lg:col-span-2">
           <CardHeader>
             <CardTitle>TradingView Replay Engine</CardTitle>
             <CardDescription>
@@ -74,14 +74,14 @@ export default function ReplayPage() {
             {chartData.length > 0 ? (
               <TradingViewChart data={chartData} />
             ) : (
-              <div className="h-full w-full rounded-lg border border-slate-800 bg-slate-900/50 flex items-center justify-center text-slate-500 font-medium">
+              <div className="terminal-panel-muted flex h-full w-full items-center justify-center rounded-lg text-center font-medium text-muted-foreground">
                 {loading ? "Cargando serie de tiempo..." : "Selecciona un Ticker y presiona Cargar para iniciar el simulador"}
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="terminal-panel">
           <CardHeader>
             <CardTitle>Fuente y Parámetros</CardTitle>
             <CardDescription>Configura el Activo a simular</CardDescription>
@@ -91,12 +91,12 @@ export default function ReplayPage() {
             <Field label="Fecha Inicial (YYYY-MM-DD)" value={start} onChange={setStart} />
             <Field label="Fecha Final (YYYY-MM-DD)" value={end} onChange={setEnd} />
             
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg mt-2" onClick={load} disabled={loading}>
+            <Button className="w-full mt-2" onClick={load} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               {loading ? "Sincronizando..." : "Extraer Datos del Mercado"}
             </Button>
             
-            <p className="text-xs text-slate-400 mt-4 leading-relaxed bg-slate-800/50 p-3 rounded-md border border-slate-700/50">
+            <p className="terminal-panel-muted mt-4 rounded-lg p-3 text-xs leading-relaxed text-muted-foreground">
               💡 <strong>Pro Tip:</strong> Si no tienes el historial guardado en tu base de datos local (PostgreSQL), 
               el sistema utilizará el Bridge Serverless para descargar las cotizaciones directamente desde Yahoo Finance en milisegundos.
             </p>
@@ -114,7 +114,6 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
       <Input 
         value={value} 
         onChange={(e) => onChange(e.target.value)} 
-        className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:ring-emerald-500 focus:border-emerald-500"
       />
     </div>
   )

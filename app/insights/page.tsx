@@ -47,7 +47,7 @@ export default function InsightsPage() {
       }
     >
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card className="terminal-panel lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
@@ -75,14 +75,14 @@ export default function InsightsPage() {
                   {aiLoading ? "Generando..." : "Generar"}
                 </Button>
               </div>
-              <div className="rounded-md border border-border/60 bg-slate-900/60 p-3 text-sm text-slate-200 min-h-[80px] whitespace-pre-wrap">
+              <div className="terminal-panel-muted min-h-[80px] rounded-lg p-3 text-sm text-slate-200 whitespace-pre-wrap">
                 {aiLoading ? "Consultando modelo..." : aiText || "Pulsa Generar para ver un resumen con IA."}
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="terminal-panel">
           <CardHeader>
             <CardTitle>Cómo mejorar las señales</CardTitle>
             <CardDescription>Acciones rápidas</CardDescription>

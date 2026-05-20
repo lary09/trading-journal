@@ -77,7 +77,7 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
         {/* LEFT COLUMN: Datelist */}
         <div className="lg:col-span-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
           {dayStats.length === 0 && (
-            <div className="p-4 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-md">
+            <div className="terminal-panel-muted rounded-lg p-4 text-center text-muted-foreground">
               No trading days yet
             </div>
           )}
@@ -89,19 +89,19 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
               <Link 
                 key={stat.date} 
                 href={`?date=${stat.date}`}
-                className={`block p-4 rounded-xl border transition-all ${isSelected ? 'bg-indigo-950/40 border-indigo-500 shadow-sm shadow-indigo-500/10' : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'}`}
+                className={`block rounded-xl border p-4 transition-all ${isSelected ? 'border-primary/40 bg-primary/10 shadow-sm shadow-primary/10' : 'border-border/70 bg-black/20 hover:border-primary/30'}`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center text-sm font-semibold text-slate-200">
                     <CalendarIcon className="h-3.5 w-3.5 mr-1.5 opacity-70" />
                     {new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
-                  {isSelected && <ChevronRight className="h-4 w-4 text-indigo-400" />}
+                  {isSelected && <ChevronRight className="h-4 w-4 text-primary" />}
                 </div>
                 <div className={`text-xl font-bold tracking-tight ${isGreen ? 'text-emerald-400' : isRed ? 'text-rose-400' : 'text-slate-400'}`}>
                   {formatCurrency(stat.netReturn)}
                 </div>
-                <div className="text-xs text-slate-500 mt-1 flex justify-between">
+                <div className="text-xs text-muted-foreground mt-1 flex justify-between">
                   <span>{stat.trades.length} Trades</span>
                   <span>{stat.winRate.toFixed(1)}% WinRate</span>
                 </div>
@@ -113,7 +113,7 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
         {/* RIGHT COLUMN: Details & Editor */}
         <div className="lg:col-span-3 flex flex-col gap-6 overflow-y-auto custom-scrollbar pb-6 pr-2">
           {!selectedStats ? (
-             <Card className="bg-slate-900/60 border-slate-800 h-full flex items-center justify-center">
+             <Card className="terminal-panel h-full flex items-center justify-center">
                <CardDescription>Select a day from the left to view journal details.</CardDescription>
              </Card>
           ) : (
@@ -127,21 +127,21 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
               </div>
 
               {/* Text Rich Journal Editor */}
-              <Card className="bg-slate-900/60 border-slate-800 shadow-xl overflow-hidden">
+              <Card className="terminal-panel overflow-hidden">
                  <CardContent className="p-6">
                     <JournalEditor date={selectedDate} initialNotes={initialNotes} />
                  </CardContent>
               </Card>
 
               {/* Day Trades Dense Table */}
-              <Card className="bg-[#0f141e] border-slate-800 shadow-2xl flex-1">
-                 <CardHeader className="py-4 border-b border-slate-800">
+              <Card className="terminal-table flex-1 py-0 shadow-none">
+                 <CardHeader className="py-4 border-b border-border/60">
                     <CardTitle className="text-sm text-slate-300 uppercase tracking-widest font-semibold">Executions for {new Date(selectedDate).toLocaleDateString()}</CardTitle>
                  </CardHeader>
                  <CardContent className="p-0">
                    <div className="overflow-x-auto">
                       <table className="w-full text-xs font-mono text-left">
-                        <thead className="text-slate-500 uppercase bg-slate-900/40 border-b border-slate-800">
+                        <thead className="text-muted-foreground uppercase border-b border-border/60">
                           <tr>
                             <th className="px-3 py-2">Status</th>
                             <th className="px-3 py-2">Symbol</th>
@@ -151,13 +151,13 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
                             <th className="px-3 py-2 text-center">Side</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800">
+                        <tbody className="divide-y divide-border/60">
                            {selectedStats.trades.map(t => {
                              const isWin = (t.profitLoss ?? 0) > 0
                              const isLoss = (t.profitLoss ?? 0) < 0
                              const isOpen = t.status === "open"
                              return (
-                               <tr key={t.id} className="hover:bg-slate-800/40 cursor-pointer">
+                               <tr key={t.id} className="cursor-pointer">
                                   <td className="px-3 py-2">
                                     {isOpen ? (
                                       <span className="bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold">Open</span>
@@ -168,7 +168,7 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
                                     )}
                                   </td>
                                   <td className="px-3 py-2 font-bold text-sky-400">{t.symbol}</td>
-                                  <td className="px-3 py-2 text-slate-400">{new Date(t.entryTime).toLocaleTimeString()}</td>
+                                  <td className="px-3 py-2 text-muted-foreground">{new Date(t.entryTime).toLocaleTimeString()}</td>
                                   <td className="px-3 py-2 text-right text-slate-300">{formatCurrency(t.entryPrice)}</td>
                                   <td className={`px-3 py-2 text-right font-medium ${isWin ? 'text-emerald-400' : isLoss ? 'text-rose-400' : 'text-slate-400'}`}>
                                     {isOpen ? "—" : formatCurrency(t.profitLoss)}
@@ -198,8 +198,8 @@ function StatWidget({ label, value, isCurrency = false, isValueString = false, s
   const isNegative = !isValueString && numValue < 0
   
   return (
-    <Card className="bg-slate-900 border-slate-800 p-4">
-      <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-2">{label}</div>
+    <Card className="terminal-panel p-4">
+      <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-2">{label}</div>
       <div className={`text-xl font-bold font-mono ${isPositive ? 'text-emerald-400' : isNegative ? 'text-rose-400' : 'text-slate-300'}`}>
         {isCurrency ? formatCurrency(numValue) : isValueString ? value : numValue.toFixed(2)}{suffix}
       </div>

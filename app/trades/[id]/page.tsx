@@ -116,35 +116,35 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
         
         {/* Main Chart Area */}
         <div className="xl:col-span-2 space-y-6">
-          <Card className="bg-slate-900/60 border-slate-800 backdrop-blur-md overflow-hidden">
+          <Card className="terminal-panel overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div>
                 <CardTitle className="text-xl flex items-center gap-2 text-white">
                   <BarChart3 className="h-5 w-5 text-indigo-400" />
                   {trade.symbol} Chart
                 </CardTitle>
-                <CardDescription className="text-slate-400">1D Timeframe (Mocked Data Execution)</CardDescription>
+                <CardDescription>1D Timeframe (Mocked Data Execution)</CardDescription>
               </div>
               <Badge variant={isLong ? "default" : "destructive"} className="text-sm px-3 py-1">
                 {isLong ? "LONG" : "SHORT"}
               </Badge>
             </CardHeader>
-            <CardContent className="p-0 border-t border-slate-800/50 relative">
+            <CardContent className="p-0 border-t border-border/60 relative">
               <div className="w-full h-[500px]">
                 <TradingViewChart data={mockCandles} markers={markers} />
               </div>
               
               {/* Floating overlay on chart */}
-              <div className="absolute top-4 left-4 bg-slate-950/80 border border-slate-800 backdrop-blur-md rounded-lg p-3 flex gap-4 shadow-xl">
+              <div className="terminal-panel-muted absolute top-4 left-4 flex gap-4 rounded-lg p-3 shadow-xl">
                  <div className="flex flex-col">
-                   <span className="text-xs text-slate-500 uppercase font-semibold">Net P&L</span>
+                   <span className="text-xs text-muted-foreground uppercase font-semibold">Net P&L</span>
                    <span className={`text-lg font-bold ${isWinner ? "text-emerald-400" : "text-rose-400"}`}>
                      {isWinner ? "+" : ""}{formatCurrency(pnl)}
                    </span>
                  </div>
-                 <div className="w-px bg-slate-800"></div>
+                 <div className="w-px bg-border"></div>
                  <div className="flex flex-col">
-                   <span className="text-xs text-slate-500 uppercase font-semibold">Quantity</span>
+                   <span className="text-xs text-muted-foreground uppercase font-semibold">Quantity</span>
                    <span className="text-lg font-bold text-slate-200">{trade.quantity}</span>
                  </div>
               </div>
@@ -152,7 +152,7 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
           </Card>
 
           {/* Qualitative Data */}
-          <Card className="bg-slate-900/60 border-slate-800 backdrop-blur-md">
+          <Card className="terminal-panel">
             <CardHeader>
                <CardTitle className="text-lg flex items-center gap-2 text-white">
                  <MessageSquare className="h-5 w-5 text-slate-400" />
@@ -162,14 +162,14 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <div className="space-y-2">
-                   <h4 className="text-sm font-semibold text-slate-400">Mistakes / Lessons</h4>
-                   <p className="text-sm text-slate-300 bg-slate-950/50 p-3 rounded-md border border-slate-800 min-h-[80px]">
+                   <h4 className="text-sm font-semibold text-muted-foreground">Mistakes / Lessons</h4>
+                   <p className="terminal-panel-muted min-h-[80px] rounded-lg p-3 text-sm text-slate-300">
                      {trade.lessonsLearned || "No lessons recorded for this trade."}
                    </p>
                  </div>
                  <div className="space-y-2">
-                   <h4 className="text-sm font-semibold text-slate-400">Additional Notes</h4>
-                   <p className="text-sm text-slate-300 bg-slate-950/50 p-3 rounded-md border border-slate-800 min-h-[80px]">
+                   <h4 className="text-sm font-semibold text-muted-foreground">Additional Notes</h4>
+                   <p className="terminal-panel-muted min-h-[80px] rounded-lg p-3 text-sm text-slate-300">
                      {trade.additionalNotes || "No notes."}
                    </p>
                  </div>
@@ -180,7 +180,7 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
 
         {/* Trade Details Sidebar */}
         <div className="space-y-6">
-          <Card className="bg-slate-900/60 border-slate-800 backdrop-blur-md">
+          <Card className="terminal-panel">
             <CardHeader>
                <CardTitle className="text-lg flex items-center gap-2 text-white">
                  <Info className="h-5 w-5 text-slate-400" />
@@ -189,43 +189,43 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
             </CardHeader>
             <CardContent className="space-y-4">
                
-               <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                 <span className="text-sm text-slate-400">Entry Time</span>
+               <div className="flex justify-between items-center py-2 border-b border-border/60">
+                 <span className="text-sm text-muted-foreground">Entry Time</span>
                  <span className="text-sm font-medium text-slate-200">
                    {format(trade.entryTime, "MMM dd, yyyy HH:mm")}
                  </span>
                </div>
                
-               <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                 <span className="text-sm text-slate-400">Exit Time</span>
+               <div className="flex justify-between items-center py-2 border-b border-border/60">
+                 <span className="text-sm text-muted-foreground">Exit Time</span>
                  <span className="text-sm font-medium text-slate-200">
                    {trade.exitTime ? format(trade.exitTime, "MMM dd, yyyy HH:mm") : "Open"}
                  </span>
                </div>
 
-               <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                 <span className="text-sm text-slate-400">Entry Price</span>
+               <div className="flex justify-between items-center py-2 border-b border-border/60">
+                 <span className="text-sm text-muted-foreground">Entry Price</span>
                  <span className="text-sm font-medium text-slate-200">
                    {formatCurrency(Number(trade.entryPrice))}
                  </span>
                </div>
 
-               <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                 <span className="text-sm text-slate-400">Exit Price</span>
+               <div className="flex justify-between items-center py-2 border-b border-border/60">
+                 <span className="text-sm text-muted-foreground">Exit Price</span>
                  <span className="text-sm font-medium text-slate-200">
                    {formatCurrency(Number(trade.exitPrice))}
                  </span>
                </div>
 
-               <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                 <span className="text-sm text-slate-400">Stop Loss</span>
+               <div className="flex justify-between items-center py-2 border-b border-border/60">
+                 <span className="text-sm text-muted-foreground">Stop Loss</span>
                  <span className="text-sm font-medium text-slate-200">
                    {formatCurrency(Number(trade.stopLoss))}
                  </span>
                </div>
 
-               <div className="flex justify-between items-center py-2 border-b border-slate-800/50">
-                 <span className="text-sm text-slate-400">Take Profit</span>
+               <div className="flex justify-between items-center py-2 border-b border-border/60">
+                 <span className="text-sm text-muted-foreground">Take Profit</span>
                  <span className="text-sm font-medium text-slate-200">
                    {formatCurrency(Number(trade.takeProfit))}
                  </span>
@@ -234,7 +234,7 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-900/60 border-slate-800 backdrop-blur-md">
+          <Card className="terminal-panel">
             <CardHeader>
                <CardTitle className="text-lg flex items-center gap-2 text-white">
                  <Target className="h-5 w-5 text-slate-400" />
@@ -244,25 +244,25 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
             <CardContent className="space-y-4">
                
                <div className="space-y-1">
-                 <span className="text-xs text-slate-500 uppercase">Trade Setup</span>
+                 <span className="text-xs text-muted-foreground uppercase">Trade Setup</span>
                  <div className="flex gap-2">
-                   <Badge variant="secondary" className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                   <Badge variant="secondary" className="border border-primary/20 bg-primary/10 text-primary">
                      {trade.tradeSetup || "Uncategorized"}
                    </Badge>
                  </div>
                </div>
 
                <div className="space-y-1">
-                 <span className="text-xs text-slate-500 uppercase">Emotional State</span>
+                 <span className="text-xs text-muted-foreground uppercase">Emotional State</span>
                  <div className="flex gap-2">
-                   <Badge variant="outline" className="border-slate-700 text-slate-300">
+                   <Badge variant="outline">
                      {trade.emotionalState || "Neutral"}
                    </Badge>
                  </div>
                </div>
                
                <div className="space-y-1">
-                 <span className="text-xs text-slate-500 uppercase">Market Condition</span>
+                 <span className="text-xs text-muted-foreground uppercase">Market Condition</span>
                  <div className="text-sm text-slate-300">
                    {trade.marketCondition || "Not specified"}
                  </div>

@@ -29,7 +29,6 @@ export function JournalEditor({ date, initialNotes }: { date: string; initialNot
           size="sm" 
           onClick={handleSave} 
           disabled={isPending || notes === initialNotes}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white"
         >
           <Save className="h-4 w-4 mr-2" />
           {saved ? "Saved!" : isPending ? "Saving..." : "Save Notes"}
@@ -37,7 +36,7 @@ export function JournalEditor({ date, initialNotes }: { date: string; initialNot
       </div>
       <Textarea
         placeholder={`Write down your thoughts, emotions, and lessons learned for ${date}...`}
-        className="min-h-[200px] bg-slate-900/40 border-slate-700 text-slate-100 placeholder:text-slate-500 focus-visible:ring-indigo-500"
+        className="min-h-[200px] border-border/80 bg-background/50 text-foreground placeholder:text-muted-foreground/65 focus-visible:ring-primary/25"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
       />
