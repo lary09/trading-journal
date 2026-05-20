@@ -73,7 +73,7 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
 
   return (
     <AppShell title="Daily Journal">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-10rem)] max-h-[900px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 h-[calc(100vh-10rem)] max-h-[900px]">
         {/* LEFT COLUMN: Datelist */}
         <div className="lg:col-span-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
           {dayStats.length === 0 && (
@@ -119,7 +119,7 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
           ) : (
             <>
               {/* Daily Performance Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 <StatWidget label="Return Return" value={selectedStats.netReturn} isCurrency />
                 <StatWidget label="Gross Return" value={selectedStats.grossReturn} isCurrency />
                 <StatWidget label="Win %" value={selectedStats.winRate} suffix="%" />
@@ -141,7 +141,7 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
                  <CardContent className="p-0">
                    <div className="overflow-x-auto">
                       <table className="w-full text-xs font-mono text-left">
-                        <thead className="text-muted-foreground uppercase border-b border-border/60">
+                        <thead className="text-muted-foreground uppercase border-b border-border/60 text-xs md:text-sm">
                           <tr>
                             <th className="px-3 py-2">Status</th>
                             <th className="px-3 py-2">Symbol</th>
@@ -151,7 +151,7 @@ export default async function JournalPage(props: { searchParams?: Promise<{ date
                             <th className="px-3 py-2 text-center">Side</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-border/60">
+                        <tbody className="divide-y divide-border/60 text-xs md:text-sm">
                            {selectedStats.trades.map(t => {
                              const isWin = (t.profitLoss ?? 0) > 0
                              const isLoss = (t.profitLoss ?? 0) < 0
@@ -198,9 +198,9 @@ function StatWidget({ label, value, isCurrency = false, isValueString = false, s
   const isNegative = !isValueString && numValue < 0
   
   return (
-    <Card className="terminal-panel p-4">
-      <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-2">{label}</div>
-      <div className={`text-xl font-bold font-mono ${isPositive ? 'text-emerald-400' : isNegative ? 'text-rose-400' : 'text-slate-300'}`}>
+    <Card className="terminal-panel p-3 md:p-4">
+      <div className="text-xs md:text-sm uppercase tracking-widest text-muted-foreground font-semibold mb-2">{label}</div>
+      <div className={`text-lg md:text-xl font-bold font-mono ${isPositive ? 'text-emerald-400' : isNegative ? 'text-rose-400' : 'text-slate-300'}`}>
         {isCurrency ? formatCurrency(numValue) : isValueString ? value : numValue.toFixed(2)}{suffix}
       </div>
     </Card>

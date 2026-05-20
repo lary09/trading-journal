@@ -79,8 +79,8 @@ export default function WatchlistPage() {
         </Button>
       }
     >
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+      <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="md:col-span-2 lg:col-span-2">
           <CardHeader>
             <CardTitle>Watchlist</CardTitle>
             <CardDescription>Activos marcados para seguimiento</CardDescription>

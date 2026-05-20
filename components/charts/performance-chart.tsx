@@ -80,7 +80,7 @@ export function PerformanceChart({ data, className }: PerformanceChartProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="h-80 w-full">
+        <div className="h-64 md:h-80 lg:h-96 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
               <defs>
@@ -125,7 +125,7 @@ export function PerformanceChart({ data, className }: PerformanceChartProps) {
                 name="Cumulative P&L"
               />
             </AreaChart>
-          </ResponsiveContainer>
+          </div>
         </div>
         
         {/* Performance Metrics */}

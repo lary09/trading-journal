@@ -34,12 +34,12 @@ export default async function TradesPage() {
         </div>
       }
     >
-      <div className="mb-6 grid gap-4 lg:grid-cols-[1fr_320px]">
+      <div className="mb-6 grid gap-4 md:gap-6 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px]">
         <Card className="terminal-panel py-6">
           <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="terminal-kicker mb-2">Trade Ledger</div>
-              <h2 className="text-3xl font-semibold tracking-tight text-white">Execution History</h2>
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight text-white">Execution History</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">A dense ledger of entries, exits and outcomes for rapid review.</p>
             </div>
             <div className="terminal-panel-muted px-4 py-3 text-right">
@@ -62,8 +62,8 @@ export default async function TradesPage() {
           <CardDescription>{trades.length} trades recorded in your journal</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left font-mono text-sm">
+          <div className="overflow-x-auto text-xs md:text-sm">
+            <table className="w-full text-left font-mono text-xs md:text-sm">
               <thead className="border-b border-slate-800 text-xs uppercase text-slate-400">
                 <tr>
                   <th className="px-4 py-3 font-semibold tracking-wider">Status</th>

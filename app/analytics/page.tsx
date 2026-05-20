@@ -30,12 +30,12 @@ export default async function AnalyticsPage() {
       title="Advanced Analytics"
       cta={<Button variant="outline" size="sm" asChild><Link href="/dashboard"><ArrowLeft className="mr-2 h-4 w-4" />Back</Link></Button>}
     >
-      <section className="mb-8 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+      <section className="mb-8 grid gap-4 md:gap-6 md:grid-cols-[1.2fr_0.8fr] lg:grid-cols-[1.15fr_0.85fr]">
         <Card className="terminal-panel py-6">
           <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="terminal-kicker mb-2">Advanced Review</div>
-              <h2 className="text-3xl font-semibold tracking-tight text-white">Where the edge shows up.</h2>
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">Where the edge shows up.</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Break performance down by day, hour and setup to identify where your process is strongest.</p>
             </div>
             <div className="terminal-panel-muted px-4 py-3">
@@ -52,14 +52,14 @@ export default async function AnalyticsPage() {
         </Card>
       </section>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Profit Factor" value={analytics.profitFactor === Infinity ? "∞" : analytics.profitFactor.toFixed(2)} description={analytics.profitFactor >= 2 ? "Excellent" : analytics.profitFactor > 1 ? "Profitable" : "Losing"} icon={<TrendingUp className="h-4 w-4" />} tone={analytics.profitFactor > 1 ? "positive" : "negative"} />
         <StatCard label="Expectancy" value={`$${analytics.expectancy.toFixed(2)}`} description="Avg Return per Trade" icon={<Target className="h-4 w-4" />} tone={analytics.expectancy >= 0 ? "positive" : "negative"} />
         <StatCard label="Avg Win" value={`$${analytics.averageWin.toFixed(2)}`} icon={<DollarSign className="h-4 w-4" />} tone="positive" />
         <StatCard label="Avg Loss" value={`-$${Math.abs(analytics.averageLoss).toFixed(2)}`} icon={<Activity className="h-4 w-4" />} tone="negative" />
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="mb-8 grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-2">
         <AnalyticsPanel title="P&L by Day of Week" description="Discover your most profitable trading days." icon={<BarChart4 className="h-5 w-5 text-primary" />}>
           <PerformanceBarChart data={byDayData} title="By Day" color="#10b981" />
         </AnalyticsPanel>

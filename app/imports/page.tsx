@@ -26,7 +26,7 @@ export default function ImportsPage() {
         </Button>
       }
     >
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-2">
         <CsvWizard />
 
         <Card className="terminal-panel">

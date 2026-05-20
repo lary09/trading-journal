@@ -160,23 +160,23 @@ export function TradingViewChart({
   }
 
   return (
-    <div className="relative w-full h-full min-h-[400px] group rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50">
+    <div className="relative w-full h-full min-h-[300px] md:min-h-[400px] lg:min-h-[500px] group rounded-lg overflow-hidden border border-slate-800 bg-slate-900/50">
       <div ref={chartContainerRef} className="absolute inset-0" />
       
       {/* Replay Controls Overlay */}
-      <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-950/80 backdrop-blur-md rounded-md p-1.5 flex items-center gap-1 border border-slate-800 shadow-xl">
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800" onClick={resetReplay} title="Reset Replay">
-          <RotateCcw className="h-4 w-4" />
+      <div className="absolute top-3 md:top-4 right-3 md:right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-950/80 backdrop-blur-md rounded-md p-1.5 flex items-center gap-1 border border-slate-800 shadow-xl flex-wrap justify-end">
+        <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 text-slate-400 hover:text-white hover:bg-slate-800" onClick={resetReplay} title="Reset Replay">
+          <RotateCcw className="h-3.5 md:h-4 w-3.5 md:w-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-900/30" onClick={togglePlay} title={isPlaying ? "Pause" : "Play"}>
-          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+        <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-900/30" onClick={togglePlay} title={isPlaying ? "Pause" : "Play"}>
+          {isPlaying ? <Pause className="h-3.5 md:h-4 w-3.5 md:w-4" /> : <Play className="h-3.5 md:h-4 w-3.5 md:w-4" />}
         </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800" onClick={fastForward} title={`Speed: ${replaySpeed}ms`}>
-          <FastForward className={`h-4 w-4 ${replaySpeed < 500 ? "text-amber-400" : ""}`} />
+        <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 text-slate-400 hover:text-white hover:bg-slate-800" onClick={fastForward} title={`Speed: ${replaySpeed}ms`}>
+          <FastForward className={`h-3.5 md:h-4 w-3.5 md:w-4 ${replaySpeed < 500 ? "text-amber-400" : ""}`} />
         </Button>
         <div className="w-px h-4 bg-slate-700 mx-1" />
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800" onClick={jumpToEnd} title="Skip to End">
-          <Settings2 className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 text-slate-400 hover:text-white hover:bg-slate-800" onClick={jumpToEnd} title="Skip to End">
+          <Settings2 className="h-3.5 md:h-4 w-3.5 md:w-4" />
         </Button>
       </div>
 

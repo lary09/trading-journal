@@ -168,12 +168,12 @@ export function NewTradeForm({ strategies: initialStrategies, initialData, mode 
       }
     >
       <div className="mx-auto max-w-6xl space-y-6">
-        <section className="grid gap-4 lg:grid-cols-[1fr_320px]">
+        <section className="grid gap-4 md:gap-6 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px]">
           <Card className="terminal-panel py-6">
             <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
                 <div className="terminal-kicker mb-2">Execution Capture</div>
-                <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">{mode === "edit" ? "Refine the trade record with final context." : "Log the trade before the details fade."}</h2>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-white">{mode === "edit" ? "Refine the trade record with final context." : "Log the trade before the details fade."}</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                   Record setup, risk, timing and psychology in one structured workflow.
                 </p>
@@ -294,7 +294,7 @@ export function NewTradeForm({ strategies: initialStrategies, initialData, mode 
               <CardTitle className="text-white">Trade Execution</CardTitle>
               <CardDescription>Price and quantity details</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               <div className="space-y-2">
                 <Label htmlFor="entryPrice" className={labelClass}>
                   Entry Price *
@@ -352,7 +352,7 @@ export function NewTradeForm({ strategies: initialStrategies, initialData, mode 
               <CardTitle className="text-white">Risk Management</CardTitle>
               <CardDescription>Stop loss, take profit, and risk parameters</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               <div className="space-y-2">
                 <Label htmlFor="stopLoss" className={labelClass}>
                   Stop Loss

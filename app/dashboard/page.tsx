@@ -86,12 +86,12 @@ export default async function DashboardPage() {
     >
       <RiskBanner />
 
-      <section className="mb-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <section className="mb-6 md:mb-8 grid gap-4 md:gap-6 lg:grid-cols-2 xl:grid-cols-[1.2fr_0.8fr]">
         <Card className="terminal-panel overflow-hidden border-primary/10 py-7">
           <CardContent className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="terminal-kicker mb-3">Session Overview</div>
-              <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">{tradeSet.length ? "Your execution desk is live." : "Your trading journal is ready."}</h2>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-white">{tradeSet.length ? "Your execution desk is live." : "Your trading journal is ready."}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
                 {tradeSet.length
                   ? "Monitor current trade quality, review recent outcomes and keep risk in view before the next entry."
@@ -116,7 +116,7 @@ export default async function DashboardPage() {
         </Card>
       </section>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-6">
+      <div className="mb-6 md:mb-8 grid grid-cols-2 gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
         <StatCard label="Total Trades" value={totalTrades} icon={<BarChart3 className="h-4 w-4" />} />
         <StatCard label="Win Rate" value={`${winRate.toFixed(1)}%`} icon={<Target className="h-4 w-4" />} />
         <StatCard label="Total P&L" value={formatCurrency(totalPnl)} icon={<TrendingUp className="h-4 w-4" />} tone={totalPnl >= 0 ? "positive" : "negative"} />
@@ -125,7 +125,7 @@ export default async function DashboardPage() {
         <StatCard label="Max Drawdown" value={formatCurrency(maxDrawdown)} icon={<TrendingDown className="h-4 w-4" />} tone={maxDrawdown >= 0 ? "positive" : "negative"} />
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="mb-6 md:mb-8 grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-3">
         <Card className="terminal-panel col-span-2">
           <CardHeader>
             <div className="terminal-kicker">Performance</div>

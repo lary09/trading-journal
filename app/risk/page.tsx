@@ -57,14 +57,14 @@ export default function RiskPage() {
 
   return (
     <AppShell title="Risk" cta={<Button onClick={save} disabled={saving}>{saving ? "Guardando..." : "Guardar reglas"}</Button>}>
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+      <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="md:col-span-2 lg:col-span-2">
           <CardHeader>
             <CardTitle>Reglas de riesgo</CardTitle>
             <CardDescription>Define tus límites para evitar días rojos catastróficos.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               <Field
                 label="Límite diario de pérdida (USD)"
                 value={rule.dailyLossLimit ?? ""}

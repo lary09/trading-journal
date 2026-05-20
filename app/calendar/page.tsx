@@ -24,10 +24,10 @@ export default async function CalendarPage() {
         </div>
       }
     >
-      <section className="mb-6 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="mb-6 grid gap-4 md:gap-6 md:grid-cols-[1.1fr_0.9fr]">
         <div className="terminal-panel px-6 py-6">
           <div className="terminal-kicker mb-2">Calendar Review</div>
-          <h2 className="text-3xl font-semibold tracking-tight text-white">Read performance in time, not just in totals.</h2>
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">Read performance in time, not just in totals.</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Surface profitable and weak sessions by day so review becomes part of the routine.</p>
         </div>
         <div className="terminal-panel px-6 py-6">

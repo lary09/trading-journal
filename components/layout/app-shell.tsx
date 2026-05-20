@@ -84,17 +84,19 @@ export function AppShell({ title, cta, children }: { title?: string; cta?: React
         </aside>
         <main className="flex-1">
           <header className="sticky top-0 z-20 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-            <div className="flex items-center justify-between px-4 py-4 md:px-8">
-              <div className="flex items-center gap-4">
-                <div className="md:hidden flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4 px-4 py-3 md:py-4 md:px-8">
+              <div className="flex items-center gap-3 md:gap-4 min-w-0">
+                <div className="md:hidden flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary flex-shrink-0">
                   <BarChart3 className="h-5 w-5" />
                 </div>
-                <div>
-                  <div className="terminal-kicker">Workspace</div>
-                  <span className="text-xl font-semibold tracking-tight text-white">{title}</span>
+                <div className="min-w-0">
+                  <div className="terminal-kicker truncate">Workspace</div>
+                  <span className="text-lg md:text-xl font-semibold tracking-tight text-white truncate">{title}</span>
                 </div>
               </div>
-              {cta}
+              <div className="flex flex-wrap gap-2 md:gap-3">
+                {cta}
+              </div>
             </div>
             <div className="flex gap-2 overflow-x-auto px-4 pb-4 md:hidden">
               {mobileItems.map((item) => {

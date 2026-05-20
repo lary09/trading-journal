@@ -16,7 +16,7 @@ interface AnalyticsChartsProps {
 
 export function PerformanceBarChart({ data, title, color = "#3b82f6" }: AnalyticsChartsProps) {
   return (
-    <div className="w-full h-[300px]">
+    <div className="w-full h-[250px] md:h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 20, right: 30, left: 10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
