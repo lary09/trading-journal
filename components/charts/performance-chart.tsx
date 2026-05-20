@@ -127,7 +127,6 @@ export function PerformanceChart({ data, className }: PerformanceChartProps) {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        </div>
         
         {/* Performance Metrics */}
         <div className="grid grid-cols-3 gap-4 mt-6">
