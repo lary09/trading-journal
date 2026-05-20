@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, integer, jsonb, boolean, numeric, date } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, uuid, integer, jsonb, boolean, numeric, date, uniqueIndex } from "drizzle-orm/pg-core"
 
 // Auth.js tables (manual to avoid adapter import issues)
 export const users = pgTable("users", {
@@ -75,6 +75,16 @@ export const symbols = pgTable("symbols", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 })
+
+export const watchlistItems = pgTable("watchlist_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  symbolId: uuid("symbol_id").references(() => symbols.id, { onDelete: "cascade" }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  watchlistUserSymbolIdx: uniqueIndex("watchlist_items_user_symbol_idx").on(table.userId, table.symbolId),
+}))
 
 export const tradingStrategies = pgTable("trading_strategies", {
   id: uuid("id").primaryKey().defaultRandom(),

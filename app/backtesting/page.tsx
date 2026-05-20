@@ -88,10 +88,10 @@ export default function BacktestingPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2 border-border/70">
           <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-xl">Ejecuciones</CardTitle>
-              <CardDescription>Estado y resultados</CardDescription>
-            </div>
+              <div>
+                <CardTitle className="text-xl">Ejecuciones</CardTitle>
+                <CardDescription>Simple benchmark runs over stored daily closes</CardDescription>
+              </div>
             <Button size="sm" variant="outline" className="gap-2" onClick={() => location.reload()}>
               <RefreshCw className="h-4 w-4" />
               Refrescar
@@ -100,7 +100,7 @@ export default function BacktestingPage() {
           <CardContent className="space-y-3">
             {loading && <div className="text-sm text-muted-foreground">Cargando...</div>}
             {!loading && runs.length === 0 && (
-              <div className="text-sm text-muted-foreground">Aún no hay backtests. Crea uno.</div>
+               <div className="text-sm text-muted-foreground">Aún no hay runs. Esta V1 calcula benchmark simple sobre cierres diarios, no una estrategia compleja.</div>
             )}
             {runs.map((s) => (
               <div key={s.id} className="flex items-center justify-between rounded-lg border border-border/60 px-4 py-3">
@@ -128,10 +128,10 @@ export default function BacktestingPage() {
         </Card>
 
         <Card className="border-border/70">
-          <CardHeader>
-            <CardTitle className="text-lg">Nuevo backtest</CardTitle>
-            <CardDescription>Usa tus barras diarias ya cargadas</CardDescription>
-          </CardHeader>
+            <CardHeader>
+              <CardTitle className="text-lg">Nuevo backtest</CardTitle>
+              <CardDescription>Run a simple return and drawdown benchmark over your stored daily bars</CardDescription>
+            </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Nombre</Label>
@@ -159,11 +159,11 @@ export default function BacktestingPage() {
             <div className="space-y-3 text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-[--chart-1]" />
-                Basado en tus barras diarias (Polygon/Tiingo)
+                Uses your stored daily bars only
               </div>
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-[--chart-2]" />
-                Simulación offline, no toca tu broker
+                This is a benchmark engine, not full strategy execution yet
               </div>
             </div>
           </CardContent>

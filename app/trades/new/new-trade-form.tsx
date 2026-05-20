@@ -23,44 +23,49 @@ type StrategyOption = {
 
 interface NewTradeFormProps {
   strategies: StrategyOption[]
+  initialData?: Partial<typeof DEFAULT_FORM> & { id?: string; isTradeOpen?: boolean }
+  mode?: "create" | "edit"
 }
 
-export function NewTradeForm({ strategies: initialStrategies }: NewTradeFormProps) {
+const DEFAULT_FORM = {
+  symbol: "",
+  tradeType: "",
+  marketType: "",
+  strategyId: "",
+  entryPrice: "",
+  exitPrice: "",
+  quantity: "",
+  stopLoss: "",
+  takeProfit: "",
+  riskAmount: "",
+  entryTime: "",
+  exitTime: "",
+  tradeSetup: "",
+  tradeOutcome: "",
+  lessonsLearned: "",
+  confidenceLevel: "",
+  emotionalState: "",
+  marketCondition: "",
+  newsImpact: "",
+  additionalNotes: "",
+}
+
+export function NewTradeForm({ strategies: initialStrategies, initialData, mode = "create" }: NewTradeFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [strategies] = useState<StrategyOption[]>(initialStrategies)
-  const [isTradeOpen, setIsTradeOpen] = useState(true)
+  const [isTradeOpen, setIsTradeOpen] = useState(initialData?.isTradeOpen ?? true)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
-  const [formData, setFormData] = useState({
-    symbol: "",
-    tradeType: "",
-    marketType: "",
-    strategyId: "",
-    entryPrice: "",
-    exitPrice: "",
-    quantity: "",
-    stopLoss: "",
-    takeProfit: "",
-    riskAmount: "",
-    entryTime: "",
-    exitTime: "",
-    tradeSetup: "",
-    tradeOutcome: "",
-    lessonsLearned: "",
-    confidenceLevel: "",
-    emotionalState: "",
-    marketCondition: "",
-    newsImpact: "",
-    additionalNotes: "",
-  })
+  const [formData, setFormData] = useState({ ...DEFAULT_FORM, ...initialData })
 
   useEffect(() => {
+    if (mode === "edit") return
     const now = new Date()
     const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
     setFormData((prev) => ({ ...prev, entryTime: localDateTime }))
-  }, [])
+  }, [mode])
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -105,12 +110,31 @@ export function NewTradeForm({ strategies: initialStrategies }: NewTradeFormProp
     setError(null)
 
     startTransition(() => {
-      void createTradeAction({
-        ...formData,
-        isTradeOpen,
-      })
+      const submit = mode === "edit"
+        ? fetch(`/api/trades/${initialData?.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...formData,
+              strategyId: formData.strategyId || null,
+              exitPrice: isTradeOpen ? null : formData.exitPrice || null,
+              exitTime: isTradeOpen ? null : formData.exitTime || null,
+              status: isTradeOpen ? "open" : "closed",
+            }),
+          }).then(async (res) => {
+            const json = await res.json().catch(() => null)
+            if (!res.ok) throw new Error(json?.error || "Unable to update trade")
+            return json
+          })
+        : createTradeAction({
+            ...formData,
+            isTradeOpen,
+          })
+
+      void submit
         .then(() => {
-          router.push("/dashboard")
+          router.push(mode === "edit" && initialData?.id ? `/trades/${initialData.id}` : "/dashboard")
+          router.refresh()
         })
         .catch((err: unknown) => {
           setError(err instanceof Error ? err.message : "An error occurred")
@@ -133,7 +157,7 @@ export function NewTradeForm({ strategies: initialStrategies }: NewTradeFormProp
 
   return (
     <AppShell
-      title="New Trade Entry"
+       title={mode === "edit" ? "Edit Trade" : "New Trade Entry"}
       cta={
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard">
@@ -149,7 +173,7 @@ export function NewTradeForm({ strategies: initialStrategies }: NewTradeFormProp
             <CardContent className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
                 <div className="terminal-kicker mb-2">Execution Capture</div>
-                <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">Log the trade before the details fade.</h2>
+                <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">{mode === "edit" ? "Refine the trade record with final context." : "Log the trade before the details fade."}</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                   Record setup, risk, timing and psychology in one structured workflow.
                 </p>
@@ -619,8 +643,8 @@ export function NewTradeForm({ strategies: initialStrategies }: NewTradeFormProp
               disabled={saving}
             >
               <Save className="mr-2 h-4 w-4" />
-              {saving ? "Saving Trade..." : "Save Trade"}
-            </Button>
+               {saving ? (mode === "edit" ? "Updating Trade..." : "Saving Trade...") : (mode === "edit" ? "Update Trade" : "Save Trade")}
+             </Button>
             <Button
               type="button"
               variant="outline"

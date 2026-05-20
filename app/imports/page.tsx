@@ -2,14 +2,13 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { CloudUpload, Plug, Upload } from "lucide-react"
+import { CloudUpload, Plug } from "lucide-react"
 
 import { AppShell } from "@/components/layout/app-shell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Textarea } from "@/components/ui/textarea"
 
 const connections = [
   { name: "Alpaca", status: "Disconnected" },
@@ -18,35 +17,12 @@ const connections = [
 ]
 
 export default function ImportsPage() {
-  const [csv, setCsv] = useState("")
-  const [status, setStatus] = useState<string | null>(null)
-  const [preview, setPreview] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-
-  async function handleSubmit() {
-    setIsLoading(true)
-    try {
-      const res = await fetch("/api/imports/csv", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csv }),
-      })
-      const json = await res.json()
-      setStatus(json.message ?? "Imported")
-      setPreview(json.preview ?? [])
-    } catch (e: any) {
-      setStatus(e?.message ?? "Import failed")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   return (
     <AppShell
       title="Imports"
       cta={
         <Button asChild>
-          <Link href="#">Start import</Link>
+          <Link href="/trades/new">Log manually</Link>
         </Button>
       }
     >
@@ -71,10 +47,10 @@ export default function ImportsPage() {
               </div>
             ))}
             <Button asChild variant="outline" className="w-full">
-              <Link href="#">Add connection</Link>
-            </Button>
-          </CardContent>
-        </Card>
+               <Link href="/watchlist">Open watchlist</Link>
+             </Button>
+           </CardContent>
+         </Card>
       </div>
     </AppShell>
   )
@@ -83,11 +59,24 @@ export default function ImportsPage() {
 import Papa from "papaparse"
 import { UploadCloud, File, AlertCircle } from "lucide-react"
 
+type PreviewSummary = {
+  totalRows: number
+  validRows: number
+  invalidRows: number
+}
+
+type PreviewIssue = {
+  row: number
+  error: string
+}
+
 function CsvWizard() {
   const [file, setFile] = useState<File | null>(null)
   const [status, setStatus] = useState<string | null>(null)
   const [preview, setPreview] = useState<any[]>([])
   const [parsedData, setParsedData] = useState<any[]>([])
+  const [issues, setIssues] = useState<PreviewIssue[]>([])
+  const [summary, setSummary] = useState<PreviewSummary | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,10 +93,36 @@ function CsvWizard() {
             setStatus("Parse error: " + results.errors[0].message)
           } else {
             setParsedData(results.data)
-            setPreview(results.data.slice(0, 5))
+            void fetchPreview(results.data as any[])
           }
         },
       })
+    }
+  }
+
+  const fetchPreview = async (rows: any[]) => {
+    setIsLoading(true)
+    try {
+      const res = await fetch("/api/imports/csv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ mode: "preview", trades: rows }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json?.error || "Preview failed")
+
+      setPreview(json.preview ?? [])
+      setIssues(json.issues ?? [])
+      setSummary(json.summary ?? null)
+      setStatus("Preview ready. Review valid and invalid rows before import.")
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : "Preview failed")
+      setPreview([])
+      setIssues([])
+      setSummary(null)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -117,22 +132,21 @@ function CsvWizard() {
     setStatus(null)
 
     try {
-      // In a real app we would map this dynamically, but for now we expect typical headers
-      // or we can just send the raw JSON array and let the backend handle the mapping logic
-      // Since our new parsing sends JSON, we'll alter the backend to accept an array of objects
       const res = await fetch("/api/imports/csv", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ trades: parsedData }),
+        body: JSON.stringify({ mode: "import", trades: parsedData }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json?.error || "Import failed")
       
-      setStatus(`Successfully Imported ${json.inserted} trades!`)
+      setStatus(`Imported ${json.inserted} trades, skipped ${json.skipped}, invalid ${json.invalid}.`)
       setFile(null)
       setParsedData([])
       setPreview([])
+      setIssues([])
+      setSummary(null)
     } catch (err) {
       setStatus(err instanceof Error ? err.message : "Import failed")
     } finally {
@@ -174,15 +188,23 @@ function CsvWizard() {
                 <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} KB • {parsedData.length} rows</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => { setFile(null); setParsedData([]); setPreview([]); setStatus(null); }}>
+            <Button variant="ghost" size="sm" onClick={() => { setFile(null); setParsedData([]); setPreview([]); setIssues([]); setSummary(null); setStatus(null); }}>
               Remove
             </Button>
           </div>
         )}
 
+        {summary && (
+          <div className="grid grid-cols-3 gap-3 text-sm">
+            <SummaryTile label="Rows" value={summary.totalRows} />
+            <SummaryTile label="Valid" value={summary.validRows} tone="positive" />
+            <SummaryTile label="Invalid" value={summary.invalidRows} tone={summary.invalidRows > 0 ? "negative" : "neutral"} />
+          </div>
+        )}
+
         {preview.length > 0 && (
            <div className="space-y-3">
-             <h4 className="text-sm font-medium text-muted-foreground">Preview Data</h4>
+              <h4 className="text-sm font-medium text-muted-foreground">Preview Data</h4>
              <div className="terminal-table overflow-x-auto rounded-lg">
                <table className="w-full text-left text-xs text-slate-300">
                  <thead className="text-muted-foreground">
@@ -194,16 +216,29 @@ function CsvWizard() {
                  </thead>
                  <tbody className="divide-y divide-border/60">
                    {preview.map((row, i) => (
-                     <tr key={i}>
-                       <td className="px-3 py-2 font-medium">{row.symbol || row.Symbol || row.ticker || "N/A"}</td>
-                       <td className="px-3 py-2">{row.entry_time || row.Date || row.time || "N/A"}</td>
-                       <td className="px-3 py-2 text-right">{row.profit_loss || row.PnL || row.pnl || "$0.00"}</td>
-                     </tr>
-                   ))}
-                 </tbody>
+                    <tr key={i}>
+                        <td className="px-3 py-2 font-medium">{row.symbol || "N/A"}</td>
+                        <td className="px-3 py-2">{row.entryTime ? new Date(row.entryTime).toLocaleString() : "N/A"}</td>
+                        <td className="px-3 py-2 text-right">{row.profitLoss ?? "$0.00"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
                </table>
              </div>
            </div>
+         )}
+
+        {issues.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-rose-300">Invalid rows</h4>
+            <div className="terminal-panel-muted rounded-lg p-3 text-xs text-rose-200">
+              {issues.slice(0, 8).map((issue) => (
+                <div key={`${issue.row}-${issue.error}`} className="py-1">
+                  Row {issue.row}: {issue.error}
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {status && (
@@ -218,10 +253,20 @@ function CsvWizard() {
         </Button>
         <Separator />
         <div className="text-xs text-muted-foreground flex justify-between">
-          <span>Required headers: symbol, entry_time</span>
-          <Link href="#" className="text-primary hover:underline">Download template</Link>
+          <span>Recommended headers: symbol, entry_time, entry_price, quantity</span>
+          <Link href="/api/export/trades" className="text-primary hover:underline">Download sample shape</Link>
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+function SummaryTile({ label, value, tone = "neutral" }: { label: string; value: number; tone?: "neutral" | "positive" | "negative" }) {
+  const color = tone === "positive" ? "text-emerald-400" : tone === "negative" ? "text-rose-400" : "text-white"
+  return (
+    <div className="terminal-panel-muted p-3">
+      <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{label}</div>
+      <div className={`mt-2 text-xl font-semibold ${color}`}>{value}</div>
+    </div>
   )
 }

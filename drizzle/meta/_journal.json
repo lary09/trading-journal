@@ -15,6 +15,13 @@
       "when": 1778000000000,
       "tag": "0001_add_user_password_hash",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778100000000,
+      "tag": "0002_create_watchlist_items",
+      "breakpoints": true
     }
   ]
 }

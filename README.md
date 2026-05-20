@@ -49,19 +49,20 @@ Edita `.env.local` con tus credenciales:
 ```env
 DATABASE_URL=postgresql://...
 AUTH_SECRET=tu_auth_secret
+NEXTAUTH_URL=http://localhost:3000
 GITHUB_ID=opcional
 GITHUB_SECRET=opcional
 ```
 
 4. **Configurar base de datos**
-Ejecuta los scripts SQL en tu base de datos:
-- `scripts/init-auth.sql`
-- `scripts/001_create_profiles.sql`
-- `scripts/002_create_strategies.sql`
-- `scripts/003_create_trades.sql`
-- `scripts/004_create_profile_trigger.sql`
-- `scripts/005_create_performance_views.sql`
-- `scripts/006_add_user_password_hash.sql`
+Usa Drizzle como flujo canónico de schema:
+```bash
+pnpm db:migrate
+```
+
+Los scripts dentro de `scripts/` son heredados y no deben usarse como fuente principal del schema actual.
+
+Si necesitas vistas de analytics adicionales o bootstrap manual, revísalos explícitamente antes de ejecutarlos.
 
 5. **Ejecutar en desarrollo**
 ```bash
@@ -96,6 +97,7 @@ La aplicación estará disponible en `http://localhost:3000`
 ```env
 DATABASE_URL=postgresql://...
 AUTH_SECRET=tu_auth_secret
+NEXTAUTH_URL=http://localhost:3000
 ```
 
 ## 📱 Uso

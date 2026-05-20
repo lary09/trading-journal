@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { signOut } from "next-auth/react"
 import { usePathname } from "next/navigation"
 import { ReactNode } from "react"
 import { BarChart3, Calendar, ChevronRight, Home, Layers, PlayCircle, Shield, Target, Upload, Wallet } from "lucide-react"
@@ -76,8 +77,8 @@ export function AppShell({ title, cta, children }: { title?: string; cta?: React
           </nav>
           <div className="terminal-panel mt-5 px-4 py-4">
             <div className="mb-3 text-xs uppercase tracking-[0.2em] text-muted-foreground">Session</div>
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/auth/login">Sign out</Link>
+            <Button variant="outline" className="w-full" onClick={() => signOut({ callbackUrl: "/auth/login" })}>
+              Sign out
             </Button>
           </div>
         </aside>

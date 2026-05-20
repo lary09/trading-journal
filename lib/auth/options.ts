@@ -8,8 +8,13 @@ import { users } from "@/db/schema"
 import { verifyPassword } from "@/lib/auth/password"
 import { customDrizzleAdapter } from "./custom-adapter"
 
+const authUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? ""
+const isLocalAuthUrl = authUrl.includes("localhost") || authUrl.includes("127.0.0.1")
+
 export const authOptions: NextAuthConfig = {
   adapter: customDrizzleAdapter(),
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  trustHost: process.env.NODE_ENV !== "production" || process.env.AUTH_TRUST_HOST === "true" || isLocalAuthUrl,
   session: { strategy: "jwt" },
   providers: [
     Credentials({
@@ -39,14 +44,13 @@ export const authOptions: NextAuthConfig = {
       },
     }),
     ...(process.env.GITHUB_ID && process.env.GITHUB_SECRET
-      ? [
-          GitHub({
-            clientId: process.env.GITHUB_ID,
-            clientSecret: process.env.GITHUB_SECRET,
-            allowDangerousEmailAccountLinking: true,
-          }),
-        ]
-      : []),
+        ? [
+            GitHub({
+              clientId: process.env.GITHUB_ID,
+              clientSecret: process.env.GITHUB_SECRET,
+            }),
+          ]
+        : []),
   ],
   callbacks: {
     async jwt({ token, user }) {

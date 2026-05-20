@@ -3,20 +3,9 @@ import { and, asc, eq, gte, lte, type SQL } from "drizzle-orm"
 
 import { auth } from "@/auth"
 import { db } from "@/db/client"
-import { riskRules, trades } from "@/db/schema"
+import { trades } from "@/db/schema"
 import { createTrade } from "@/lib/data/trades"
-
-const startOfUtcDay = () => {
-  const d = new Date()
-  d.setUTCHours(0, 0, 0, 0)
-  return d
-}
-const startOfUtcWeek = () => {
-  const d = startOfUtcDay()
-  const day = d.getUTCDay()
-  d.setUTCDate(d.getUTCDate() - day)
-  return d
-}
+import { enforceRiskLimits } from "@/lib/risk/rules"
 
 export async function GET(req: Request) {
   const session = await auth()
@@ -55,30 +44,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
   }
 
-  // Risk enforcement (daily/weekly loss limits on realized PnL)
-  const [rule] = await db.select().from(riskRules).where(eq(riskRules.userId, userId))
-  if (rule?.alertsEnabled) {
-    const dailyStart = startOfUtcDay()
-    const weeklyStart = startOfUtcWeek()
-    const rows = await db
-      .select({ profitLoss: trades.profitLoss, entryTime: trades.entryTime })
-      .from(trades)
-      .where(and(eq(trades.userId, userId), eq(trades.status, "closed"), gte(trades.entryTime, weeklyStart)))
-
-    const dailyPnl = rows
-      .filter((t) => new Date(t.entryTime).getTime() >= dailyStart.getTime())
-      .reduce((acc, t) => acc + Number(t.profitLoss ?? 0), 0)
-    const weeklyPnl = rows.reduce((acc, t) => acc + Number(t.profitLoss ?? 0), 0)
-
-    if (rule.dailyLossLimit && dailyPnl <= -Number(rule.dailyLossLimit)) {
-      return NextResponse.json({ error: "Daily loss limit reached. Trade blocked." }, { status: 403 })
-    }
-    if (rule.weeklyLossLimit && weeklyPnl <= -Number(rule.weeklyLossLimit)) {
-      return NextResponse.json({ error: "Weekly loss limit reached. Trade blocked." }, { status: 403 })
-    }
-  }
-
   try {
+    await enforceRiskLimits(userId, Number(body.profitLoss ?? 0) || 0)
+
     const trade = await createTrade({
       userId,
       symbol: body.symbol,
@@ -109,6 +77,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ data: trade }, { status: 201 })
   } catch (error) {
+    if (error instanceof Error && error.message.startsWith("RIESGO:")) {
+      return NextResponse.json({ error: error.message }, { status: 403 })
+    }
     console.error("Error creating trade", error)
     return NextResponse.json({ error: "Failed to create trade" }, { status: 500 })
   }

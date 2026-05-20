@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plus, RefreshCw } from "lucide-react"
+import { Plus, RefreshCw, Trash2 } from "lucide-react"
 
 import { AppShell } from "@/components/layout/app-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,6 +13,7 @@ import { toast } from "sonner"
 
 type SymbolRow = {
   id: string
+  symbolId: string
   ticker: string
   name: string | null
   exchange: string | null
@@ -54,6 +55,20 @@ export default function WatchlistPage() {
     load()
   }
 
+  const remove = async (id: string) => {
+    const res = await fetch(`/api/watchlist?id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    })
+
+    if (!res.ok) {
+      toast.error("No se pudo eliminar el símbolo")
+      return
+    }
+
+    toast.success("Eliminado de watchlist")
+    load()
+  }
+
   return (
     <AppShell
       title="Watchlist & Screener"
@@ -86,7 +101,12 @@ export default function WatchlistPage() {
                       {s.name ?? "Sin nombre"} {s.exchange ? `· ${s.exchange}` : ""}
                     </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">{s.assetType ?? "asset"}</div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-xs text-muted-foreground">{s.assetType ?? "asset"}</div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => remove(s.id)}>
+                      <Trash2 className="h-4 w-4 text-rose-400" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

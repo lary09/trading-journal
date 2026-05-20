@@ -1,86 +1,138 @@
 import { NextResponse } from "next/server"
+import { eq } from "drizzle-orm"
 
 import { auth } from "@/auth"
 import { db } from "@/db/client"
 import { ingestionRuns, trades } from "@/db/schema"
-import { eq } from "drizzle-orm"
-
-type Mapping = {
-  symbol: string
-  entryTime: string
-  tradeType: string
-  marketType: string
-  quantity: string
-  entryPrice: string
-  exitPrice?: string
-  status?: string
-  profitLoss?: string
-}
+import { createTrade } from "@/lib/data/trades"
+import { parseImportedTrades } from "@/lib/imports/csv"
 
 export async function POST(req: Request) {
   const session = await auth()
   const userId = session?.user?.id
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const contentType = req.headers.get("content-type") || ""
-  if (!contentType.includes("application/json")) {
-    return NextResponse.json({ error: "Content-Type must be application/json" }, { status: 400 })
-  }
-
   const body = await req.json().catch(() => null)
-  const rows: any[] = body?.trades
+  const rows = body?.trades
+  const mode = body?.mode === "import" ? "import" : "preview"
 
-  if (!rows || !Array.isArray(rows) || rows.length === 0) {
+  if (!Array.isArray(rows) || rows.length === 0) {
     return NextResponse.json({ error: "Trades data array is required and must not be empty" }, { status: 400 })
   }
 
-  const parsed = []
-  
-  for (const row of rows) {
-    // Normalization heuristic: Extract values dynamically based on common CSV headers from brokers.
-    const symbolField = row.symbol || row.Symbol || row.ticker || row.Asset || ""
-    const entryTimeField = row.entry_time || row.Date || row.time || row["Entry Date"] || row.Date_Time
-    const rawPrice = row.entry_price || row.Price || row["Entry Price"]
-    const rawQty = row.quantity || row.Qty || row.Quantity || row.Shares
-    const rawPnl = row.profit_loss || row.PnL || row.pnl || row.Net_PL || row["Net P&L"]
-    
-    if (!symbolField || !entryTimeField) continue
-    
-    // Parse numeric fields safely
-    const entryPrice = parseFloat(String(rawPrice || "0").replace(/[^0-9.-]+/g, ""))
-    const quantity = parseFloat(String(rawQty || "1").replace(/[^0-9.-]+/g, ""))
-    const profitLoss = rawPnl ? parseFloat(String(rawPnl).replace(/[^0-9.-]+/g, "")) : null
+  const parsedRows = rows.filter((row): row is Record<string, unknown> => row && typeof row === "object" && !Array.isArray(row))
+  const { valid, issues } = parseImportedTrades(parsedRows)
 
-    if (!Number.isFinite(entryPrice) || !Number.isFinite(quantity)) continue
-
-    parsed.push({
-      userId,
-      symbol: String(symbolField).trim().toUpperCase(),
-      tradeType: String(row.trade_type || row.Type || row["Trade Type"] || "buy").toLowerCase().includes("sell") ? "short" : "long",
-      marketType: String(row.market_type || row.Market || "stocks").toLowerCase(),
-      entryPrice: entryPrice.toString(),
-      exitPrice: row.exit_price ? parseFloat(String(row.exit_price).replace(/[^0-9.-]+/g, "")).toString() : null,
-      quantity: quantity.toString(),
-      entryTime: new Date(entryTimeField),
-      exitTime: row.exit_time ? new Date(row.exit_time) : null,
-      status: row.status ? String(row.status).toLowerCase() : (profitLoss !== null ? "closed" : "open"),
-      profitLoss: profitLoss !== null ? profitLoss.toString() : null,
+  if (mode === "preview") {
+    return NextResponse.json({
+      ok: true,
+      preview: valid.slice(0, 10).map((row) => ({
+        symbol: row.symbol,
+        tradeType: row.tradeType,
+        marketType: row.marketType,
+        entryTime: row.entryTime.toISOString(),
+        entryPrice: row.entryPrice,
+        quantity: row.quantity,
+        profitLoss: row.profitLoss,
+        status: row.status,
+      })),
+      summary: {
+        totalRows: rows.length,
+        validRows: valid.length,
+        invalidRows: issues.length,
+      },
+      issues,
     })
   }
 
   const run = await db
     .insert(ingestionRuns)
-    .values({ userId, source: "csv", status: "processing", rowCount: String(parsed.length) })
+    .values({ userId, source: "csv", status: "processing", rowCount: String(valid.length) })
     .returning()
 
-  if (parsed.length > 0) {
-    await db.insert(trades).values(parsed).onConflictDoNothing()
+  const existing = await db
+    .select({
+      symbol: trades.symbol,
+      tradeType: trades.tradeType,
+      marketType: trades.marketType,
+      entryPrice: trades.entryPrice,
+      exitPrice: trades.exitPrice,
+      quantity: trades.quantity,
+      entryTime: trades.entryTime,
+      exitTime: trades.exitTime,
+      status: trades.status,
+    })
+    .from(trades)
+    .where(eq(trades.userId, userId))
+
+  const existingFingerprints = new Set(
+    existing.map((row) => [
+      row.symbol,
+      row.tradeType,
+      row.marketType,
+      Number(row.entryPrice),
+      row.exitPrice === null ? "" : Number(row.exitPrice),
+      Number(row.quantity),
+      new Date(row.entryTime).toISOString(),
+      row.exitTime ? new Date(row.exitTime).toISOString() : "",
+      row.status,
+    ].join("|"))
+  )
+
+  let inserted = 0
+  let skipped = 0
+
+  for (const row of valid) {
+    const key = [
+      row.symbol,
+      row.tradeType,
+      row.marketType,
+      row.entryPrice,
+      row.exitPrice ?? "",
+      row.quantity,
+      row.entryTime.toISOString(),
+      row.exitTime?.toISOString() ?? "",
+      row.status,
+    ].join("|")
+
+    if (existingFingerprints.has(key)) {
+      skipped++
+      continue
+    }
+
+    await createTrade({
+      userId,
+      symbol: row.symbol,
+      tradeType: row.tradeType,
+      marketType: row.marketType,
+      entryPrice: row.entryPrice,
+      exitPrice: row.exitPrice,
+      quantity: row.quantity,
+      entryTime: row.entryTime,
+      exitTime: row.exitTime,
+      status: row.status,
+      profitLoss: row.profitLoss,
+    })
+    inserted++
+    existingFingerprints.add(key)
   }
 
   await db
     .update(ingestionRuns)
-    .set({ status: "completed", rowCount: String(parsed.length), updatedAt: new Date() })
+    .set({
+      status: issues.length ? "completed_with_errors" : "completed",
+      rowCount: String(inserted),
+      error: issues.length ? JSON.stringify(issues.slice(0, 20)) : null,
+      updatedAt: new Date(),
+    })
     .where(eq(ingestionRuns.id, run[0].id))
 
-  return NextResponse.json({ ok: true, inserted: parsed.length, runId: run[0].id })
+  return NextResponse.json({
+    ok: true,
+    inserted,
+    skipped,
+    invalid: issues.length,
+    runId: run[0].id,
+    issues,
+  })
 }

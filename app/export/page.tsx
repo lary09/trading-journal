@@ -1,4 +1,7 @@
+"use client"
+
 import Link from "next/link"
+import { useState } from "react"
 
 import { AppShell } from "@/components/layout/app-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,6 +9,25 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, Download, FileText, RefreshCw } from "lucide-react"
 
 export default function ExportPage() {
+  const [isDownloading, setIsDownloading] = useState(false)
+
+  const downloadTrades = async () => {
+    setIsDownloading(true)
+    try {
+      const res = await fetch("/api/export/trades")
+      if (!res.ok) throw new Error("Unable to export trades")
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement("a")
+      anchor.href = url
+      anchor.download = `trades-${new Date().toISOString().slice(0, 10)}.csv`
+      anchor.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setIsDownloading(false)
+    }
+  }
+
   return (
     <AppShell
       title="Exports"
@@ -44,13 +66,13 @@ export default function ExportPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full" size="lg">
+            <Button className="w-full" size="lg" onClick={downloadTrades} disabled={isDownloading}>
               <Download className="h-4 w-4 mr-2" />
-              Download latest trades
+              {isDownloading ? "Preparing export..." : "Download latest trades"}
             </Button>
-            <Button variant="outline" className="w-full" size="lg">
+            <Button variant="outline" className="w-full" size="lg" disabled>
               <FileText className="h-4 w-4 mr-2" />
-              Export backtests
+              Export backtests (next)
             </Button>
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-white">
               <RefreshCw className="h-4 w-4 mr-2" />

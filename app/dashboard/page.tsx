@@ -9,7 +9,7 @@ import { RiskBanner } from "@/components/risk/risk-banner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { getRecentTrades, getTradesForUser, type NormalizedTrade } from "@/lib/data/trades"
+import { getRecentTrades, getTradesForUser } from "@/lib/data/trades"
 
 function formatCurrency(value: number | null | undefined, decimals = 2) {
   if (value === null || value === undefined) return `$0.${"0".repeat(decimals)}`
@@ -25,13 +25,7 @@ export default async function DashboardPage() {
     getRecentTrades(session.user.id, 5),
   ])
 
-  const demoTrades: NormalizedTrade[] = [
-    { id: "d1", userId: "demo", symbol: "AAPL", tradeType: "long", marketType: "stocks", entryPrice: 180, exitPrice: 190, quantity: 10, stopLoss: 175, takeProfit: 200, riskAmount: 50, profitLoss: 100, profitLossPct: 0.055, commission: 0, swap: 0, entryTime: new Date("2024-03-01"), exitTime: new Date("2024-03-05"), status: "closed", tradeSetup: null, tradeOutcome: null, lessonsLearned: null, confidenceLevel: null, emotionalState: "confident", marketCondition: null, newsImpact: null, additionalNotes: null, chartScreenshotUrl: null, strategyId: null, createdAt: new Date("2024-03-01"), updatedAt: new Date("2024-03-05") },
-    { id: "d2", userId: "demo", symbol: "TSLA", tradeType: "long", marketType: "stocks", entryPrice: 240, exitPrice: 220, quantity: 5, stopLoss: 210, takeProfit: 280, riskAmount: 150, profitLoss: -100, profitLossPct: -0.083, commission: 0, swap: 0, entryTime: new Date("2024-03-10"), exitTime: new Date("2024-03-14"), status: "closed", tradeSetup: null, tradeOutcome: null, lessonsLearned: null, confidenceLevel: null, emotionalState: "anxious", marketCondition: null, newsImpact: null, additionalNotes: null, chartScreenshotUrl: null, strategyId: null, createdAt: new Date("2024-03-10"), updatedAt: new Date("2024-03-14") },
-    { id: "d3", userId: "demo", symbol: "EURUSD", tradeType: "long", marketType: "fx", entryPrice: 1.08, exitPrice: 1.095, quantity: 10000, stopLoss: 1.07, takeProfit: 1.12, riskAmount: 100, profitLoss: 150, profitLossPct: 0.013, commission: 0, swap: 0, entryTime: new Date("2024-03-20"), exitTime: new Date("2024-03-28"), status: "closed", tradeSetup: null, tradeOutcome: null, lessonsLearned: null, confidenceLevel: null, emotionalState: "calm", marketCondition: null, newsImpact: null, additionalNotes: null, chartScreenshotUrl: null, strategyId: null, createdAt: new Date("2024-03-20"), updatedAt: new Date("2024-03-28") },
-  ]
-
-  const tradeSet = trades.length === 0 ? demoTrades : trades
+  const tradeSet = trades
   const closedTrades = tradeSet.filter((trade) => trade.status === "closed")
   const totalTrades = tradeSet.length
   const winRate = closedTrades.length
@@ -97,9 +91,11 @@ export default async function DashboardPage() {
           <CardContent className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="terminal-kicker mb-3">Session Overview</div>
-              <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">Your execution desk is live.</h2>
+              <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">{tradeSet.length ? "Your execution desk is live." : "Your trading journal is ready."}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-                Monitor current trade quality, review recent outcomes and keep risk in view before the next entry.
+                {tradeSet.length
+                  ? "Monitor current trade quality, review recent outcomes and keep risk in view before the next entry."
+                  : "Log your first trade to unlock real dashboard metrics, recent executions and analytics."}
               </p>
             </div>
             <div className="grid min-w-[240px] gap-3 sm:grid-cols-2">
@@ -159,6 +155,22 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {tradeSet.length === 0 && (
+        <Card className="terminal-panel mb-8 border-dashed py-8">
+          <CardContent className="flex flex-col items-center justify-center text-center">
+            <BarChart3 className="mb-3 h-8 w-8 text-muted-foreground" />
+            <div className="text-lg font-medium text-white">No trades logged yet</div>
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+              The dashboard no longer uses demo trades. Your real metrics will appear here as soon as you record your first execution.
+            </p>
+            <div className="mt-5 flex gap-3">
+              <Button asChild><Link href="/trades/new">Log First Trade</Link></Button>
+              <Button variant="outline" asChild><Link href="/imports">Import CSV</Link></Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="terminal-table mb-8 border-border/70 bg-transparent py-0 shadow-none">
         <CardHeader className="flex flex-row items-center justify-between border-b border-slate-800/50 pb-4">

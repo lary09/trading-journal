@@ -7,7 +7,7 @@ import { bars1d, symbols } from "@/db/schema"
 
 export async function GET(req: Request) {
   const session = await auth()
-  if (!session?.user?.id && process.env.NODE_ENV === "production") {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -45,7 +45,7 @@ export async function GET(req: Request) {
       .orderBy(bars1d.tradingDay)
 
     if (rows.length > 0) {
-      return NextResponse.json({ bars: rows }) // Asegurar formato ISO
+      return NextResponse.json({ bars: rows, source: "local" })
     }
   } catch (error) {
     console.warn("DB Query failed, falling back to Yahoo Finance")
@@ -69,9 +69,9 @@ export async function GET(req: Request) {
     const data = await res.json()
     const result = data.chart.result?.[0]
     
-    if (!result || !result.timestamp) {
-      return NextResponse.json({ bars: [] })
-    }
+     if (!result || !result.timestamp) {
+       return NextResponse.json({ bars: [], source: "yahoo", message: "No local or fallback data was found for the selected range." })
+     }
 
     const timestamps = result.timestamp as number[]
     const quotes = result.indicators.quote[0]
@@ -91,10 +91,16 @@ export async function GET(req: Request) {
       }
     }).filter(Boolean)
 
-    return NextResponse.json({ bars: mappedBars })
+    return NextResponse.json({ bars: mappedBars, source: "yahoo", message: rowsMessage(mappedBars.length) })
 
   } catch (apiError) {
     console.error("YF API Fallback failed:", apiError)
-    return NextResponse.json({ bars: [] })
+    return NextResponse.json({ bars: [], source: "yahoo", message: "No local bars found and Yahoo fallback failed." })
   }
+}
+
+function rowsMessage(count: number) {
+  return count > 0
+    ? "Loaded from Yahoo fallback because local bars were not available yet."
+    : "No local or fallback data was found for the selected range."
 }

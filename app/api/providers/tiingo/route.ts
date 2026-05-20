@@ -5,7 +5,7 @@ import { ingestTiingoDaily } from "@/lib/providers/tiingo"
 
 export async function POST(req: Request) {
   const session = await auth()
-  if (!session?.user?.id && process.env.NODE_ENV === "production") {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 

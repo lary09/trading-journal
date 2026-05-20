@@ -19,11 +19,19 @@ type Bar = {
   volume: string | null
 }
 
+type ReplayResponse = {
+  bars: Bar[]
+  source?: "local" | "yahoo"
+  message?: string
+}
+
 export default function ReplayPage() {
   const [symbol, setSymbol] = useState("AAPL")
   const [start, setStart] = useState("2024-01-01")
   const [end, setEnd] = useState("2024-02-01")
   const [bars, setBars] = useState<Bar[]>([])
+  const [source, setSource] = useState<ReplayResponse["source"]>(undefined)
+  const [message, setMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const load = async () => {
@@ -33,11 +41,15 @@ export default function ReplayPage() {
     try {
       const res = await fetch(`/api/replay?symbol=${encodeURIComponent(sym)}&start=${start}&end=${end}`)
       if (!res.ok) throw new Error("No se pudieron cargar barras")
-      const json = await res.json().catch(() => ({ bars: [] }))
+      const json = await res.json().catch(() => ({ bars: [] })) as ReplayResponse
       setBars(json.bars ?? [])
+      setSource(json.source)
+      setMessage(json.message ?? null)
     } catch (e) {
       console.error(e)
       setBars([])
+      setSource(undefined)
+      setMessage("No market data available for the selected range.")
     } finally {
       setLoading(false)
     }
@@ -67,15 +79,16 @@ export default function ReplayPage() {
           <CardHeader>
             <CardTitle>TradingView Replay Engine</CardTitle>
             <CardDescription>
-              Gráfica interactiva con datos institucionales. Usa los controles del overlay superior para iniciar el pase de velas histórico.
+              Replay over historical daily candles. Local database bars are preferred; Yahoo fallback is used only when local history is missing.
             </CardDescription>
           </CardHeader>
           <CardContent className="h-[600px] p-4 flex flex-col">
+            {source && <div className="mb-3 text-xs text-muted-foreground">Source: {source === "local" ? "Local database" : "Yahoo fallback"}</div>}
             {chartData.length > 0 ? (
               <TradingViewChart data={chartData} />
             ) : (
               <div className="terminal-panel-muted flex h-full w-full items-center justify-center rounded-lg text-center font-medium text-muted-foreground">
-                {loading ? "Cargando serie de tiempo..." : "Selecciona un Ticker y presiona Cargar para iniciar el simulador"}
+                {loading ? "Cargando serie de tiempo..." : message || "Selecciona un Ticker y presiona Cargar para iniciar el simulador"}
               </div>
             )}
           </CardContent>
@@ -97,8 +110,7 @@ export default function ReplayPage() {
             </Button>
             
             <p className="terminal-panel-muted mt-4 rounded-lg p-3 text-xs leading-relaxed text-muted-foreground">
-              💡 <strong>Pro Tip:</strong> Si no tienes el historial guardado en tu base de datos local (PostgreSQL), 
-              el sistema utilizará el Bridge Serverless para descargar las cotizaciones directamente desde Yahoo Finance en milisegundos.
+              Local bars from your synced watchlist are preferred. Yahoo is only a fallback when your database does not have the requested history yet.
             </p>
           </CardContent>
         </Card>
