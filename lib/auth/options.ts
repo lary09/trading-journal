@@ -14,7 +14,7 @@ const isLocalAuthUrl = authUrl.includes("localhost") || authUrl.includes("127.0.
 export const authOptions: NextAuthConfig = {
   adapter: customDrizzleAdapter(),
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
-  trustHost: process.env.NODE_ENV !== "production" || process.env.AUTH_TRUST_HOST === "true" || isLocalAuthUrl,
+  trustHost: true,
   session: { strategy: "jwt" },
   providers: [
     Credentials({
