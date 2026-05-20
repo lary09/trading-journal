@@ -125,7 +125,8 @@ export function PerformanceChart({ data, className }: PerformanceChartProps) {
                 name="Cumulative P&L"
               />
             </AreaChart>
-          </div>
+          </ResponsiveContainer>
+        </div>
         </div>
         
         {/* Performance Metrics */}
